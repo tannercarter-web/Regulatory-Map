@@ -1,0 +1,2151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saronic Global Regulatory Environment</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET & VARS ─── */
+:root {
+  --bg:#0b0b09;--bg2:#111110;--bg3:#181816;--bg4:#202020;--bg5:#2a2a28;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
+  --border3:rgba(255,255,255,0.20);--border4:rgba(255,255,255,0.32);
+  --text:#e8e5dc;--text2:#a09d94;--text3:#6a6760;--text4:#3d3c3a;
+  --gold:#c8a96e;--gold2:#e8c98e;--gold-dim:rgba(200,169,110,0.16);
+  --red:#c45a45;--green:#6aaa6a;--amber:#c8851a;--blue:#4a90d4;
+  --font-h:'Syne',sans-serif;--font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --sh:0 6px 32px rgba(0,0,0,0.7);--sh2:0 2px 12px rgba(0,0,0,0.5);
+
+  /* Category palette — hex values, no CSS vars inside SVG stroke */
+  --c-imo:#1a3a5c;    --s-imo:#4a90d4;    --t-imo:#82b8f0;
+  --c-class:#0d1f35;  --s-class:#378ADD;  --t-class:#7ab8f0;
+  --c-reg:#0a1f18;    --s-reg:#1D9E75;    --t-reg:#5ecfaa;
+  --c-def:#17133a;    --s-def:#7F77DD;    --t-def:#a89fe8;
+  --c-res:#2a1a00;    --s-res:#c8851a;    --t-res:#e8b46a;
+  --c-ind:#0f1e07;    --s-ind:#5a9020;    --t-ind:#8ac84a;
+  --c-test:#2a0f08;   --s-test:#c85030;   --t-test:#e88060;
+  --c-init:#1a1430;   --s-init:#9B72CF;   --t-init:#c8a8f0;
+  --c-action:#161616; --s-action:#505050; --t-action:#909090;
+  --c-ph:#141412;     --s-ph:#3a3a38;     --t-ph:#5a5a58;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text)}
+button{font-family:var(--font);cursor:pointer}
+input,textarea,select{font-family:var(--font)}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border3);border-radius:3px}
+
+/* ─── CANVAS ─── */
+#cw{position:fixed;inset:0;overflow:hidden;
+  background:radial-gradient(ellipse at 30% 35%,rgba(74,144,212,0.05) 0%,transparent 55%),
+             radial-gradient(ellipse at 70% 65%,rgba(200,169,110,0.04) 0%,transparent 45%),var(--bg);}
+#cw::before{content:'';position:fixed;inset:0;
+  background-image:radial-gradient(circle,rgba(255,255,255,0.03) 1px,transparent 1px);
+  background-size:40px 40px;pointer-events:none;z-index:0;}
+#cw.grabbing{cursor:grabbing}
+#cw:not(.grabbing):not(.connecting){cursor:grab}
+#cw.connecting{cursor:crosshair}
+
+/* The canvas div holds both the SVG edges layer AND the node divs */
+#canvas-root{position:absolute;transform-origin:0 0;width:10000px;height:10000px;}
+
+/* SVG edges layer — sits inside canvas-root, z-index BELOW nodes */
+#edges-svg{
+  position:absolute;top:0;left:0;width:10000px;height:10000px;
+  pointer-events:none;z-index:1;overflow:visible;
+}
+
+/* All node divs sit above the SVG */
+.node{position:absolute;z-index:2;cursor:move;
+  border:2px solid var(--border2);
+  transition:box-shadow .15s,border-color .15s,opacity .2s,transform .1s;}
+.node:hover{z-index:5}
+.node.selected{border-color:var(--gold)!important;
+  box-shadow:0 0 0 2px rgba(200,169,110,.18),var(--sh);z-index:6}
+.node.dragging{transform:scale(1.02);box-shadow:0 20px 60px rgba(0,0,0,.85);z-index:10;transition:none}
+.node.filtered-out{opacity:.1;pointer-events:none}
+.node.search-hi{border-color:var(--gold2)!important;
+  box-shadow:0 0 0 3px rgba(232,201,142,.25),var(--sh)}
+
+/* ═══ LEVEL 1 — CENTER (Saronic Global Hub) ═══ */
+.node.lv1{
+  border-radius:24px;min-width:260px;max-width:340px;
+  background:linear-gradient(135deg,#1a1916,#202018);
+  border-color:var(--border3)!important;
+  box-shadow:0 0 60px rgba(200,169,110,0.12),var(--sh);
+}
+.node.lv1 .nh{padding:22px 24px 18px;border-bottom:none;
+  justify-content:center;flex-direction:column;align-items:center;gap:6px}
+.node.lv1 .ntitle{font-family:var(--font-h);font-size:16px;font-weight:800;
+  color:var(--gold);text-align:center;line-height:1.3}
+.node.lv1 .nsub{font-size:10.5px;color:var(--text3);text-align:center;
+  line-height:1.55;font-family:var(--mono);padding:0 4px 16px}
+.node.lv1 .nb,.node.lv1 .nf{display:none}
+
+/* ═══ LEVEL 2 — IMO (Dominant singleton) ═══ */
+.node.lv2{
+  border-radius:20px;min-width:200px;max-width:280px;
+  box-shadow:var(--sh);
+}
+.node.lv2 .nh{padding:18px 20px 16px;border-bottom:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center}
+.node.lv2 .ntitle{font-family:var(--font-h);font-size:14px;font-weight:700;
+  text-align:center;line-height:1.3}
+.node.lv2 .nsub{font-size:11px;text-align:center;padding-bottom:12px;font-family:var(--mono)}
+.node.lv2 .nb,.node.lv2 .nf{display:none}
+
+/* ═══ LEVEL 3 — Regions (UK, US, AUS/ASIA) ═══ */
+.node.lv3{
+  border-radius:18px;min-width:170px;max-width:240px;
+  box-shadow:var(--sh2);
+}
+.node.lv3 .nh{padding:14px 18px 12px;border-bottom:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center}
+.node.lv3 .ntitle{font-family:var(--font-h);font-size:13px;font-weight:700;
+  text-align:center;line-height:1.3}
+.node.lv3 .nsub{font-size:10.5px;text-align:center;padding-bottom:10px;font-family:var(--mono)}
+.node.lv3 .nb,.node.lv3 .nf{display:none}
+
+/* ═══ LEVEL 4 — Category Hubs ═══ */
+.node.lv4{
+  border-radius:50px;min-width:140px;max-width:195px;
+  box-shadow:var(--sh2);
+}
+.node.lv4 .nh{padding:10px 18px;border-bottom:none;
+  align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+.node.lv4 .ntitle{font-family:var(--font-h);font-size:11.5px;font-weight:600;
+  text-align:center;line-height:1.3}
+.node.lv4 .nb,.node.lv4 .nf,.node.lv4 .nsub{display:none}
+
+/* ═══ LEVEL 5 — Stakeholder / Entity Nodes ═══ */
+.node.lv5{
+  border-radius:14px;min-width:185px;max-width:255px;
+  background:var(--bg3);box-shadow:var(--sh2);
+}
+.node.lv5 .nh{padding:11px 13px 9px;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:9px}
+.node.lv5 .ntitle{font-size:12.5px;font-weight:600;line-height:1.35}
+.node.lv5 .nb{padding:8px 13px 10px}
+.node.lv5 .nsub{font-size:11px;line-height:1.4;font-family:var(--mono)}
+.node.lv5 .nf{display:flex;flex-wrap:wrap;gap:3px;padding:0 11px 9px}
+
+/* ═══ LEVEL 6 — Action / Task Nodes ═══ */
+.node.lv6{
+  border-radius:10px;min-width:165px;max-width:230px;
+  background:var(--bg4);border-width:1.5px;box-shadow:var(--sh2);
+}
+.node.lv6 .nh{padding:8px 11px 7px;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:8px}
+.node.lv6 .ntitle{font-size:11.5px;font-weight:500;line-height:1.3}
+.node.lv6 .nb{padding:6px 11px 8px}
+.node.lv6 .nsub{font-size:10.5px;font-family:var(--mono);line-height:1.4}
+.node.lv6 .nf{display:flex;flex-wrap:wrap;gap:3px;padding:0 9px 7px}
+.node.lv6.done-node .ntitle{text-decoration:line-through;opacity:.55}
+
+/* ═══ INITIATIVE Node ═══ */
+.node.n-initiative{
+  border-radius:12px;min-width:170px;max-width:240px;
+  border-style:dashed;border-width:2px;box-shadow:var(--sh2);
+}
+.node.n-initiative .ntitle{font-size:12px;font-family:var(--font-h);font-weight:700}
+
+/* ═══ PLACEHOLDER ═══ */
+.node.n-placeholder{opacity:.45;border-style:dashed;border-width:1.5px}
+.node.n-placeholder .ntitle{font-style:italic;color:var(--text3)}
+
+/* Shared node internals */
+.nh{display:flex;align-items:flex-start;gap:9px;position:relative}
+.ndot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.ntitle{color:var(--text);line-height:1.35;flex:1;min-width:0;
+  outline:none;word-break:break-word;}
+.ntitle[contenteditable=true]{cursor:text;background:rgba(255,255,255,.05);
+  border-radius:4px;padding:1px 3px;margin:-1px -3px}
+.nsub{color:var(--text3);outline:none;word-break:break-word;}
+.nsub[contenteditable=true]{cursor:text;background:rgba(255,255,255,.05);
+  border-radius:4px;padding:1px 3px;margin:-1px -3px}
+
+/* Badges */
+.badge{font-size:9.5px;padding:2px 6px;border-radius:99px;border:1px solid;
+  font-family:var(--mono);font-weight:500;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:3px;}
+.b-ns{background:rgba(60,60,60,.4);border-color:#444;color:var(--text3)}
+.b-ip{background:rgba(74,144,212,.15);border-color:#4a90d460;color:#82b8f0}
+.b-bl{background:rgba(196,90,69,.15);border-color:#c45a4560;color:#e8806a}
+.b-dn{background:rgba(106,170,106,.15);border-color:#6aaa6a60;color:#8acc8a}
+.b-ph{background:rgba(200,133,26,.15);border-color:#c8851a60;color:#e8b46a}
+.b-pm{background:rgba(90,144,32,.15);border-color:#5a902060;color:#8ac84a}
+.b-pl{background:rgba(60,60,60,.3);border-color:#44444440;color:var(--text3)}
+.b-init{background:rgba(155,114,207,.15);border-color:#9B72CF60;color:#c8a8f0}
+.b-act{background:rgba(200,169,110,.15);border-color:rgba(200,169,110,.35);
+  color:var(--gold);cursor:pointer}
+
+/* Action checkbox */
+.acb{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--border3);
+  background:transparent;flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:all .1s;}
+.acb.ck{background:var(--green);border-color:var(--green);}
+.acb.ck::after{content:'✓';font-size:9px;color:#fff;font-weight:700}
+
+/* Node action bar */
+.nab-wrap{position:absolute;top:-34px;right:0;
+  display:flex;gap:3px;opacity:0;pointer-events:none;transition:opacity .12s}
+.node:hover .nab-wrap,.node.selected .nab-wrap{opacity:1;pointer-events:auto}
+.nab{width:27px;height:27px;border-radius:7px;border:1px solid var(--border2);
+  background:var(--bg3);color:var(--text2);font-size:12px;
+  display:flex;align-items:center;justify-content:center;transition:all .1s;}
+.nab:hover{background:var(--bg5);color:var(--text)}
+.nab.nab-d:hover{background:rgba(196,90,69,.18);color:var(--red);border-color:rgba(196,90,69,.5)}
+.nab.nab-c:hover{background:var(--gold-dim);color:var(--gold);border-color:rgba(200,169,110,.5)}
+
+/* Connect ports */
+.cport{position:absolute;width:12px;height:12px;border-radius:50%;
+  background:var(--gold);border:2px solid var(--bg);
+  cursor:crosshair;opacity:0;transition:opacity .12s,transform .1s;z-index:10;}
+.node:hover .cport,.node.selected .cport{opacity:1}
+.cport:hover{transform:scale(1.5)!important}
+.cport.pt{top:-6px;left:50%;transform:translateX(-50%)}
+.cport.pb{bottom:-6px;left:50%;transform:translateX(-50%)}
+.cport.pl{left:-6px;top:50%;transform:translateY(-50%)}
+.cport.pr{right:-6px;top:50%;transform:translateY(-50%)}
+
+/* Collapse button */
+.cbtn{position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);
+  width:22px;height:22px;border-radius:50%;background:var(--bg4);
+  border:1px solid var(--border2);color:var(--text3);font-size:10px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;z-index:5;opacity:0;pointer-events:none;transition:all .1s;}
+.node:hover .cbtn,.node.selected .cbtn{opacity:1;pointer-events:auto}
+.cbtn:hover{background:var(--bg5);color:var(--text)}
+
+/* ─── EDGE PATHS ─── */
+.ep{fill:none;stroke-width:2.5;pointer-events:stroke;cursor:pointer;
+  transition:stroke .15s,stroke-width .12s;stroke-linecap:round;}
+.ep:hover{stroke-width:4}
+.ep.sel-ep{stroke-width:4}
+.ep.ep-action{stroke-dasharray:6 4;stroke-width:2;opacity:.8}
+.ep.ep-init{stroke-dasharray:10 4;stroke-width:2.5;opacity:.65}
+.ep.ep-region{stroke-width:3.5;opacity:.9}
+.ep.ep-hub{stroke-width:2.5;opacity:.8}
+.ep.ep-stake{stroke-width:2;opacity:.75}
+
+/* ─── TOOLBAR ─── */
+#toolbar{position:fixed;top:14px;left:50%;transform:translateX(-50%);
+  z-index:300;display:flex;align-items:center;gap:2px;
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:14px;padding:5px 8px;box-shadow:var(--sh);flex-wrap:nowrap;}
+.tb-sep{width:1px;height:20px;background:var(--border2);margin:0 3px;flex-shrink:0}
+.tbb{display:flex;align-items:center;gap:5px;padding:6px 10px;
+  border-radius:8px;border:none;background:transparent;
+  color:var(--text2);font-size:12px;font-family:var(--font);font-weight:500;
+  transition:all .12s;white-space:nowrap;flex-shrink:0;}
+.tbb:hover{background:var(--bg5);color:var(--text)}
+.tbb.active{background:var(--gold-dim);color:var(--gold)}
+.tbb svg{width:13px;height:13px;flex-shrink:0}
+.tb-zoom{font-family:var(--mono);font-size:11px;min-width:42px;text-align:center;pointer-events:none}
+
+/* ─── SIDE PANEL ─── */
+#sp{position:fixed;right:0;top:0;bottom:0;width:320px;
+  background:var(--bg2);border-left:1px solid var(--border);
+  z-index:200;display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);}
+#sp.open{transform:translateX(0)}
+.sp-hdr{padding:16px 18px 12px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.sp-htitle{font-family:var(--font-h);font-size:13px;font-weight:700;color:var(--text)}
+.sp-badge{font-size:10px;padding:2px 7px;border-radius:99px;border:1px solid var(--border2);
+  color:var(--text3);font-family:var(--mono)}
+.sp-close{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;color:var(--text3);font-size:14px;
+  display:flex;align-items:center;justify-content:center;}
+.sp-close:hover{background:var(--bg4);color:var(--text)}
+.sp-body{flex:1;overflow-y:auto}
+.sps{padding:14px 18px;border-bottom:1px solid var(--border)}
+.sps-title{font-size:9.5px;font-family:var(--mono);color:var(--text3);
+  letter-spacing:.09em;text-transform:uppercase;margin-bottom:10px;
+  display:flex;align-items:center;justify-content:space-between;}
+.sps-title button{font-size:10px;padding:2px 8px;border-radius:6px;
+  border:1px solid var(--border2);background:transparent;color:var(--text3);}
+.sps-title button:hover{background:var(--bg4);color:var(--text)}
+.sf{margin-bottom:9px}
+.sl{font-size:11px;color:var(--text3);margin-bottom:3px}
+.si{width:100%;background:var(--bg3);border:1px solid var(--border2);
+  border-radius:7px;color:var(--text);font-family:var(--font);font-size:12px;
+  padding:7px 10px;outline:none;resize:vertical;transition:border-color .12s;}
+.si:focus{border-color:var(--gold)}
+textarea.si{min-height:60px;font-family:var(--mono);font-size:11px;line-height:1.5}
+select.si{cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236a6760' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
+.sr2{display:flex;gap:7px}.sr2 .sf{flex:1}
+.spb{width:100%;padding:8px 12px;border-radius:8px;font-size:12px;
+  font-family:var(--font);font-weight:500;display:flex;align-items:center;
+  justify-content:center;gap:5px;transition:background .12s;margin-bottom:5px;}
+.spb.prim{background:var(--gold-dim);border:1px solid rgba(200,169,110,.35);color:var(--gold)}
+.spb.prim:hover{background:rgba(200,169,110,.24)}
+.spb.sec{background:var(--bg4);border:1px solid var(--border);color:var(--text2)}
+.spb.sec:hover{background:var(--bg5);color:var(--text)}
+.spb.dan{background:rgba(196,90,69,.1);border:1px solid rgba(196,90,69,.25);color:var(--red)}
+.spb.dan:hover{background:rgba(196,90,69,.2)}
+.spb.sm{padding:5px 10px;font-size:11px;margin-bottom:3px}
+
+/* action list */
+.ai-item{background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  padding:9px 10px;margin-bottom:6px;cursor:pointer;transition:border-color .1s;}
+.ai-item:hover{border-color:var(--border2)}
+.ai-item.ai-done{opacity:.5}
+.ai-top{display:flex;align-items:flex-start;gap:7px}
+.ai-txt{font-size:12px;font-weight:500;color:var(--text);line-height:1.3;flex:1}
+.ai-txt.ai-dt{text-decoration:line-through;color:var(--text3)}
+.ai-meta{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px}
+.ai-edb{font-size:10px;color:var(--text3);padding:1px 6px;border-radius:4px;
+  border:1px solid var(--border);background:transparent;}
+.ai-edb:hover{background:var(--bg4);color:var(--text)}
+
+/* connected nodes */
+.cni{display:flex;align-items:center;gap:8px;padding:6px 8px;
+  border-radius:7px;border:1px solid var(--border);background:var(--bg3);
+  margin-bottom:4px;cursor:pointer;transition:border-color .1s;}
+.cni:hover{border-color:var(--border2)}
+
+/* ─── FLOATING PANELS ─── */
+.fpanel{position:fixed;z-index:400;background:var(--bg3);
+  border:1px solid var(--border2);border-radius:16px;padding:20px;
+  box-shadow:var(--sh);display:none;max-height:82vh;overflow-y:auto;}
+.fpanel.open{display:block}
+.fp-title{font-family:var(--font-h);font-size:13px;font-weight:700;
+  margin-bottom:14px;color:var(--text);
+  display:flex;align-items:center;justify-content:space-between;}
+.fp-x{width:24px;height:24px;border-radius:5px;border:1px solid var(--border);
+  background:transparent;color:var(--text3);font-size:13px;
+  display:flex;align-items:center;justify-content:center;}
+.fp-x:hover{background:var(--bg5);color:var(--text)}
+#add-node-panel{bottom:22px;left:50%;transform:translateX(-50%);width:380px}
+#add-action-panel{bottom:22px;left:50%;transform:translateX(-50%);width:380px}
+#add-init-panel{bottom:22px;left:50%;transform:translateX(-50%);width:380px}
+#filter-panel{top:60px;right:22px;width:280px}
+#export-panel{top:60px;right:22px;width:280px}
+
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px}
+.topt{padding:7px 6px;border-radius:8px;border:1px solid var(--border);
+  background:transparent;color:var(--text2);font-size:11px;
+  font-family:var(--font);cursor:pointer;text-align:center;transition:all .1s;}
+.topt:hover{border-color:var(--border2);background:var(--bg4)}
+.topt.active{border-color:var(--gold);background:var(--gold-dim);color:var(--gold)}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.copt{padding:6px 8px;border-radius:7px;border:1px solid var(--border);
+  background:transparent;color:var(--text2);font-size:11px;
+  font-family:var(--font);cursor:pointer;display:flex;align-items:center;gap:5px;
+  transition:all .1s;}
+.copt:hover{border-color:var(--border2);background:var(--bg4)}
+.copt.active{border-color:var(--border3);background:var(--bg4);color:var(--text)}
+
+/* ─── CONTEXT MENU ─── */
+#ctx{position:fixed;z-index:600;background:var(--bg3);border:1px solid var(--border2);
+  border-radius:10px;padding:5px;min-width:185px;box-shadow:var(--sh);display:none;}
+.ctx-i{padding:7px 10px;border-radius:6px;font-size:12px;cursor:pointer;
+  display:flex;align-items:center;gap:8px;color:var(--text2);transition:all .1s;}
+.ctx-i:hover{background:var(--bg5);color:var(--text)}
+.ctx-i.ctx-d{color:var(--red)}
+.ctx-i.ctx-d:hover{background:rgba(196,90,69,.15)}
+.ctx-sep{height:1px;background:var(--border);margin:4px 0}
+
+/* ─── MINIMAP ─── */
+#minimap{position:fixed;bottom:22px;right:22px;width:170px;height:110px;
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:10px;overflow:hidden;z-index:200;box-shadow:var(--sh2);cursor:pointer;}
+#mm-c{width:100%;height:100%}
+#mm-vp{position:absolute;border:1.5px solid var(--gold);border-radius:2px;
+  pointer-events:none;opacity:.6}
+
+/* ─── ZOOM ─── */
+#zoom-ctrl{position:fixed;bottom:22px;left:22px;z-index:200;display:flex;flex-direction:column;gap:4px}
+.zbtn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border2);
+  background:var(--bg3);color:var(--text2);font-size:20px;line-height:1;
+  display:flex;align-items:center;justify-content:center;box-shadow:var(--sh2);}
+.zbtn:hover{background:var(--bg4);color:var(--text)}
+
+/* ─── SEARCH ─── */
+#search-bar{position:fixed;top:62px;left:50%;transform:translateX(-50%);
+  z-index:300;display:none;background:var(--bg3);border:1px solid var(--border2);
+  border-radius:10px;padding:8px 12px;gap:8px;align-items:center;
+  box-shadow:var(--sh);width:330px;}
+#search-bar.open{display:flex}
+#search-inp{flex:1;background:transparent;border:none;outline:none;
+  color:var(--text);font-family:var(--font);font-size:13px;}
+#search-inp::placeholder{color:var(--text3)}
+#search-res{position:fixed;top:108px;left:50%;transform:translateX(-50%);
+  z-index:300;background:var(--bg3);border:1px solid var(--border2);
+  border-radius:10px;width:330px;max-height:280px;overflow-y:auto;
+  box-shadow:var(--sh);display:none;}
+#search-res.open{display:block}
+.sr-item{padding:9px 14px;cursor:pointer;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;}
+.sr-item:last-child{border-bottom:none}
+.sr-item:hover{background:var(--bg4)}
+
+/* ─── LIVE EDGE ─── */
+#live-edge{position:fixed;inset:0;pointer-events:none;z-index:400;display:none}
+
+/* ─── SELECTION BOX ─── */
+#sel-box{position:absolute;border:1.5px solid var(--gold);
+  background:rgba(200,169,110,.04);border-radius:4px;
+  pointer-events:none;display:none;z-index:3;}
+
+/* ─── STATUS BAR ─── */
+#sbar{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+  z-index:200;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;}
+.spill{background:var(--bg3);border:1px solid var(--border2);border-radius:99px;
+  padding:4px 10px;font-size:10.5px;color:var(--text3);font-family:var(--mono);
+  box-shadow:var(--sh2);white-space:nowrap;}
+.spill.fa{border-color:rgba(200,169,110,.4);color:var(--gold);background:var(--gold-dim)}
+
+/* ─── TOAST ─── */
+#toast-w{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  z-index:700;display:flex;flex-direction:column;gap:7px;align-items:center;pointer-events:none;}
+.toast{background:var(--bg4);border:1px solid var(--border2);border-radius:8px;
+  padding:8px 16px;font-size:12px;color:var(--text2);box-shadow:var(--sh2);
+  animation:tIn .2s ease,tOut .3s ease 2.5s forwards;max-width:400px;text-align:center;}
+@keyframes tIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes tOut{to{opacity:0;transform:translateY(-4px)}}
+
+/* ─── MODALS ─── */
+#help-modal,#action-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);
+  z-index:800;display:none;align-items:center;justify-content:center;}
+#help-modal.open,#action-modal.open{display:flex}
+.hbox{background:var(--bg3);border:1px solid var(--border2);border-radius:18px;
+  padding:26px 28px;max-width:560px;width:90%;max-height:85vh;overflow-y:auto;box-shadow:var(--sh);}
+.hbox h2{font-family:var(--font-h);font-size:16px;font-weight:800;margin-bottom:6px;color:var(--text)}
+.hbox p{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:16px}
+.hgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.hitem .hk{font-family:var(--mono);font-size:11px;color:var(--gold);margin-bottom:3px}
+.hitem .hd{font-size:11.5px;color:var(--text2);line-height:1.4}
+.hsect{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.08em;
+  text-transform:uppercase;margin:14px 0 8px;border-top:1px solid var(--border);padding-top:12px}
+.am-box{background:var(--bg3);border:1px solid var(--border2);border-radius:16px;
+  padding:22px 24px;width:440px;max-width:95vw;max-height:85vh;overflow-y:auto;box-shadow:var(--sh);}
+.am-title{font-family:var(--font-h);font-size:14px;font-weight:700;margin-bottom:16px;
+  color:var(--text);display:flex;align-items:center;justify-content:space-between;}
+</style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div id="toolbar">
+  <button class="tbb" onclick="resetView()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Reset</button>
+  <div class="tb-sep"></div>
+  <button class="tbb" onclick="zoomOut()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg></button>
+  <span class="tbb tb-zoom" id="zoom-lbl">100%</span>
+  <button class="tbb" onclick="zoomIn()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></button>
+  <div class="tb-sep"></div>
+  <button class="tbb" id="btn-add" onclick="openFP('add-node-panel')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add Node</button>
+  <button class="tbb" onclick="openFP('add-action-panel')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Add Action</button>
+  <button class="tbb" onclick="openFP('add-init-panel')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Initiative</button>
+  <button class="tbb" id="btn-con" onclick="toggleConnectMode()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Connect</button>
+  <div class="tb-sep"></div>
+  <button class="tbb" onclick="toggleSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Search</button>
+  <button class="tbb" onclick="openFP('filter-panel')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filter</button>
+  <div class="tb-sep"></div>
+  <button class="tbb" onclick="openFP('export-panel')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+  <button class="tbb" onclick="importJSON()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import</button>
+  <button class="tbb" onclick="toggleHelp()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Help</button>
+</div>
+
+<!-- SEARCH -->
+<div id="search-bar">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  <input id="search-inp" placeholder="Search nodes, actions, notes, initiatives…" oninput="doSearch(this.value)"/>
+  <button style="background:none;border:none;color:var(--text3);font-size:14px" onclick="closeSearch()">✕</button>
+</div>
+<div id="search-res"></div>
+
+<!-- MAIN CANVAS WRAPPER -->
+<div id="cw">
+  <!-- canvas-root contains SVG edges layer + all node divs -->
+  <div id="canvas-root">
+    <svg id="edges-svg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="rgba(255,255,255,0.25)"/>
+        </marker>
+      </defs>
+    </svg>
+    <div id="sel-box"></div>
+  </div>
+</div>
+
+<!-- LIVE EDGE (fixed overlay, screen coords) -->
+<svg id="live-edge" width="100%" height="100%">
+  <path id="live-path" fill="none" stroke="rgba(200,169,110,.75)" stroke-width="2.5" stroke-dasharray="8 5"/>
+</svg>
+
+<!-- ZOOM CONTROLS -->
+<div id="zoom-ctrl">
+  <button class="zbtn" onclick="zoomIn()">+</button>
+  <button class="zbtn" onclick="zoomOut()">−</button>
+</div>
+
+<!-- MINIMAP -->
+<div id="minimap">
+  <canvas id="mm-c" width="170" height="110"></canvas>
+  <div id="mm-vp"></div>
+</div>
+
+<!-- STATUS BAR -->
+<div id="sbar">
+  <span class="spill" id="sb-nodes">0 nodes</span>
+  <span class="spill" id="sb-acts">0 open actions</span>
+  <span class="spill" id="sb-filt" style="display:none">Filter active</span>
+</div>
+
+<!-- TOAST -->
+<div id="toast-w"></div>
+
+<!-- SIDE PANEL -->
+<div id="sp">
+  <div class="sp-hdr">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="sp-htitle" id="sp-title">Select a node</div>
+      <span class="sp-badge" id="sp-badge"></span>
+    </div>
+    <button class="sp-close" onclick="closeSP()">✕</button>
+  </div>
+  <div class="sp-body" id="sp-body">
+    <div style="padding:24px;text-align:center;color:var(--text3);font-size:12px;line-height:1.6">
+      Click any node to view and edit its details.<br>Double-click text to edit inline.
+    </div>
+  </div>
+</div>
+
+<!-- ADD NODE PANEL -->
+<div class="fpanel" id="add-node-panel">
+  <div class="fp-title">Add Node <button class="fp-x" onclick="closeFP('add-node-panel')">✕</button></div>
+  <div class="sf"><div class="sl">Type</div>
+    <div class="tgrid" id="an-types">
+      <button class="topt active" data-t="stakeholder" onclick="selType(this)">Stakeholder</button>
+      <button class="topt" data-t="hub" onclick="selType(this)">Hub</button>
+      <button class="topt" data-t="region" onclick="selType(this)">Region</button>
+      <button class="topt" data-t="initiative" onclick="selType(this)">Initiative</button>
+      <button class="topt" data-t="placeholder" onclick="selType(this)">Placeholder</button>
+      <button class="topt" data-t="center" onclick="selType(this)">Center</button>
+    </div>
+  </div>
+  <div class="sf"><div class="sl">Title</div><input class="si" id="an-title" placeholder="Node title…"/></div>
+  <div class="sf" id="an-sub-wrap"><div class="sl">Subtitle</div><input class="si" id="an-subtitle" placeholder="Brief description…"/></div>
+  <div class="sf"><div class="sl">Region</div>
+    <select class="si" id="an-region">
+      <option value="">— None —</option><option value="global">Global / IMO</option>
+      <option value="uk">United Kingdom</option><option value="us">United States</option>
+      <option value="aus">Australia</option><option value="sgp">Singapore</option>
+      <option value="jpn">Japan</option><option value="apac">Asia Pacific</option>
+    </select>
+  </div>
+  <div class="sf"><div class="sl">Category</div>
+    <div class="cgrid" id="an-cats">
+      <button class="copt active" data-c="class" onclick="selCat(this,'an-cats')"><span style="width:7px;height:7px;border-radius:50%;background:#378ADD;display:inline-block"></span>Classification</button>
+      <button class="copt" data-c="reg" onclick="selCat(this,'an-cats')"><span style="width:7px;height:7px;border-radius:50%;background:#1D9E75;display:inline-block"></span>Regulators</button>
+      <button class="copt" data-c="def" onclick="selCat(this,'an-cats')"><span style="width:7px;height:7px;border-radius:50%;background:#7F77DD;display:inline-block"></span>Defence</button>
+      <button class="copt" data-c="res" onclick="selCat(this,'an-cats')"><span style="width:7px;height:7px;border-radius:50%;background:#c8851a;display:inline-block"></span>Research</button>
+      <button class="copt" data-c="ind" onclick="selCat(this,'an-cats')"><span style="width:7px;height:7px;border-radius:50%;background:#5a9020;display:inline-block"></span>Industry</button>
+      <button class="copt" data-c="test" onclick="selCat(this,'an-cats')"><span style="width:7px;height:7px;border-radius:50%;background:#c85030;display:inline-block"></span>Test &amp; Ops</button>
+      <button class="copt" data-c="imo" onclick="selCat(this,'an-cats')"><span style="width:7px;height:7px;border-radius:50%;background:#4a90d4;display:inline-block"></span>IMO / Intl</button>
+    </div>
+  </div>
+  <div style="display:flex;gap:7px;margin-top:6px">
+    <button class="spb prim" onclick="doAddNode()" style="flex:1">Add Node</button>
+    <button class="spb sec" onclick="closeFP('add-node-panel')" style="flex:.4;margin:0">Cancel</button>
+  </div>
+</div>
+
+<!-- ADD ACTION PANEL -->
+<div class="fpanel" id="add-action-panel">
+  <div class="fp-title">Add Action Item <button class="fp-x" onclick="closeFP('add-action-panel')">✕</button></div>
+  <div class="sf"><div class="sl">Action Title</div><input class="si" id="aa-title" placeholder="e.g. Schedule meeting with LR London"/></div>
+  <div class="sf"><div class="sl">Description</div><textarea class="si" id="aa-desc" rows="2" placeholder="Details…"></textarea></div>
+  <div class="sr2">
+    <div class="sf"><div class="sl">Owner</div><input class="si" id="aa-owner" placeholder="Name"/></div>
+    <div class="sf"><div class="sl">Due Date</div><input class="si" id="aa-due" type="date"/></div>
+  </div>
+  <div class="sr2">
+    <div class="sf"><div class="sl">Status</div>
+      <select class="si" id="aa-status"><option value="ns">Not Started</option><option value="ip">In Progress</option><option value="bl">Blocked</option><option value="dn">Done</option></select>
+    </div>
+    <div class="sf"><div class="sl">Priority</div>
+      <select class="si" id="aa-prio"><option value="h">High</option><option value="m" selected>Medium</option><option value="l">Low</option></select>
+    </div>
+  </div>
+  <div class="sf"><div class="sl">Initiative</div><input class="si" id="aa-init" placeholder="Initiative name (optional)"/></div>
+  <div class="sf"><div class="sl">Parent Node</div><select class="si" id="aa-parent"></select></div>
+  <div style="display:flex;gap:7px;margin-top:6px">
+    <button class="spb prim" onclick="doAddAction()" style="flex:1">Add Action</button>
+    <button class="spb sec" onclick="closeFP('add-action-panel')" style="flex:.4;margin:0">Cancel</button>
+  </div>
+</div>
+
+<!-- ADD INITIATIVE PANEL -->
+<div class="fpanel" id="add-init-panel">
+  <div class="fp-title">Add Initiative <button class="fp-x" onclick="closeFP('add-init-panel')">✕</button></div>
+  <div class="sf"><div class="sl">Initiative Name</div><input class="si" id="ai-name" placeholder="e.g. UK Classification Pathway"/></div>
+  <div class="sf"><div class="sl">Description</div><textarea class="si" id="ai-desc" rows="2" placeholder="Strategic objective…"></textarea></div>
+  <div class="sr2">
+    <div class="sf"><div class="sl">Owner</div><input class="si" id="ai-owner" placeholder="Name"/></div>
+    <div class="sf"><div class="sl">Region</div>
+      <select class="si" id="ai-region"><option value="">Global</option><option value="uk">UK</option><option value="us">US</option><option value="aus">Australia</option><option value="apac">Asia Pacific</option></select>
+    </div>
+  </div>
+  <div style="display:flex;gap:7px;margin-top:6px">
+    <button class="spb prim" onclick="doAddInitiative()" style="flex:1">Add Initiative</button>
+    <button class="spb sec" onclick="closeFP('add-init-panel')" style="flex:.4;margin:0">Cancel</button>
+  </div>
+</div>
+
+<!-- FILTER PANEL -->
+<div class="fpanel" id="filter-panel">
+  <div class="fp-title">Filter Map <button class="fp-x" onclick="closeFP('filter-panel')">✕</button></div>
+  <div class="sf"><div class="sl">Region</div>
+    <select class="si" id="f-region" onchange="applyFilters()">
+      <option value="">All Regions</option><option value="global">Global / IMO</option>
+      <option value="uk">United Kingdom</option><option value="us">United States</option>
+      <option value="aus">Australia</option><option value="sgp">Singapore</option>
+      <option value="jpn">Japan</option><option value="apac">Asia Pacific</option>
+    </select>
+  </div>
+  <div class="sf"><div class="sl">Category</div>
+    <select class="si" id="f-cat" onchange="applyFilters()">
+      <option value="">All Categories</option><option value="class">Classification</option>
+      <option value="reg">Regulators</option><option value="def">Defence</option>
+      <option value="res">Research</option><option value="ind">Industry</option>
+      <option value="test">Test & Ops</option><option value="imo">IMO / Intl</option>
+    </select>
+  </div>
+  <div class="sf"><div class="sl">Status</div>
+    <select class="si" id="f-status" onchange="applyFilters()">
+      <option value="">All Statuses</option><option value="ns">Not Started</option>
+      <option value="ip">In Progress</option><option value="bl">Blocked</option><option value="dn">Done</option>
+    </select>
+  </div>
+  <div class="sf"><div class="sl">Owner</div><input class="si" id="f-owner" placeholder="Filter by owner…" oninput="applyFilters()"/></div>
+  <div class="sf"><div class="sl">Initiative</div><input class="si" id="f-init" placeholder="Filter by initiative…" oninput="applyFilters()"/></div>
+  <div class="sf"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2)">
+    <input type="checkbox" id="f-open-acts" onchange="applyFilters()"> Nodes with open actions only</label></div>
+  <div class="sf"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2)">
+    <input type="checkbox" id="f-done" onchange="applyFilters()"> Completed actions only</label></div>
+  <button class="spb sec" onclick="clearFilters()" style="margin-top:4px">Clear All Filters</button>
+</div>
+
+<!-- EXPORT PANEL -->
+<div class="fpanel" id="export-panel">
+  <div class="fp-title">Export / Save <button class="fp-x" onclick="closeFP('export-panel')">✕</button></div>
+  <button class="spb prim" onclick="exportJSON()">Export as JSON</button>
+  <button class="spb sec" onclick="saveLS()">Save to Browser</button>
+  <button class="spb sec" onclick="loadLS()">Load from Browser</button>
+  <div style="height:1px;background:var(--border);margin:10px 0"></div>
+  <div style="font-size:11px;color:var(--text3);line-height:1.6">JSON export saves all nodes, edges, actions, and initiatives. Use Import to restore.</div>
+</div>
+
+<!-- CONTEXT MENU -->
+<div id="ctx">
+  <div class="ctx-i" onclick="ctxDo('edit')">✎ &nbsp;Edit in panel</div>
+  <div class="ctx-i" onclick="ctxDo('connect')">⟳ &nbsp;Connect from here</div>
+  <div class="ctx-i" onclick="ctxDo('add-action')">✓ &nbsp;Add action item</div>
+  <div class="ctx-i" onclick="ctxDo('add-child')">+ &nbsp;Add child node</div>
+  <div class="ctx-i" onclick="ctxDo('duplicate')">⧉ &nbsp;Duplicate</div>
+  <div class="ctx-i" onclick="ctxDo('collapse')">⊟ &nbsp;Collapse / Expand</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-i ctx-d" onclick="ctxDo('delete')">✕ &nbsp;Delete node</div>
+  <div id="ctx-edge-w" style="display:none">
+    <div class="ctx-sep"></div>
+    <div class="ctx-i ctx-d" onclick="ctxDo('del-edge')">✕ &nbsp;Delete connection</div>
+  </div>
+</div>
+
+<!-- ACTION MODAL -->
+<div id="action-modal">
+  <div class="am-box">
+    <div class="am-title">Edit Action <button class="fp-x" onclick="closeAM()">✕</button></div>
+    <div class="sf"><div class="sl">Title</div><input class="si" id="am-title"/></div>
+    <div class="sf"><div class="sl">Description</div><textarea class="si" id="am-desc" rows="3"></textarea></div>
+    <div class="sr2">
+      <div class="sf"><div class="sl">Owner</div><input class="si" id="am-owner"/></div>
+      <div class="sf"><div class="sl">Due Date</div><input class="si" id="am-due" type="date"/></div>
+    </div>
+    <div class="sr2">
+      <div class="sf"><div class="sl">Status</div>
+        <select class="si" id="am-status"><option value="ns">Not Started</option><option value="ip">In Progress</option><option value="bl">Blocked</option><option value="dn">Done</option></select>
+      </div>
+      <div class="sf"><div class="sl">Priority</div>
+        <select class="si" id="am-prio"><option value="h">High</option><option value="m">Medium</option><option value="l">Low</option></select>
+      </div>
+    </div>
+    <div class="sf"><div class="sl">Initiative</div><input class="si" id="am-init"/></div>
+    <div class="sf"><div class="sl">Notes</div><textarea class="si" id="am-notes" rows="2"></textarea></div>
+    <div style="display:flex;gap:7px;margin-top:8px">
+      <button class="spb prim" onclick="saveAM()" style="flex:1">Save</button>
+      <button class="spb dan" onclick="deleteAM()" style="flex:.5;margin:0">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- HELP MODAL -->
+<div id="help-modal">
+  <div class="hbox">
+    <h2>Saronic Global Regulatory Map</h2>
+    <p>A living strategy and execution tool for Saronic's global regulatory environment. Changes auto-save to your browser.</p>
+    <div class="hsect">Navigation</div>
+    <div class="hgrid">
+      <div class="hitem"><div class="hk">Drag canvas</div><div class="hd">Pan the map</div></div>
+      <div class="hitem"><div class="hk">Scroll wheel</div><div class="hd">Zoom in / out</div></div>
+      <div class="hitem"><div class="hk">Shift + drag</div><div class="hd">Multi-select box</div></div>
+      <div class="hitem"><div class="hk">Click minimap</div><div class="hd">Jump to area</div></div>
+    </div>
+    <div class="hsect">Editing</div>
+    <div class="hgrid">
+      <div class="hitem"><div class="hk">Double-click text</div><div class="hd">Edit title or subtitle inline</div></div>
+      <div class="hitem"><div class="hk">Click node → ✎</div><div class="hd">Open full detail panel</div></div>
+      <div class="hitem"><div class="hk">Right-click node</div><div class="hd">Context menu (all actions)</div></div>
+      <div class="hitem"><div class="hk">Delete / Backspace</div><div class="hd">Delete selected node(s)</div></div>
+    </div>
+    <div class="hsect">Actions &amp; Initiatives</div>
+    <div class="hgrid">
+      <div class="hitem"><div class="hk">Add Action button</div><div class="hd">Create a task linked to a node</div></div>
+      <div class="hitem"><div class="hk">Action badge on node</div><div class="hd">View / jump to actions</div></div>
+      <div class="hitem"><div class="hk">Initiative button</div><div class="hd">Create a strategic initiative node</div></div>
+      <div class="hitem"><div class="hk">Filter panel</div><div class="hd">Filter by region, status, owner…</div></div>
+    </div>
+    <div class="hsect">Data</div>
+    <div class="hgrid">
+      <div class="hitem"><div class="hk">Export → JSON</div><div class="hd">Download full map as JSON</div></div>
+      <div class="hitem"><div class="hk">Import button</div><div class="hd">Load JSON file</div></div>
+      <div class="hitem"><div class="hk">Ctrl/⌘ + Z</div><div class="hd">Undo</div></div>
+      <div class="hitem"><div class="hk">Ctrl/⌘ + Shift+Z</div><div class="hd">Redo</div></div>
+    </div>
+    <button class="spb prim" onclick="toggleHelp()" style="margin-top:16px;width:100%">Got it</button>
+  </div>
+</div>
+
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)"/>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+// ─── CATEGORY PALETTE (real hex, safe for SVG attributes) ───
+const CAT_HEX = {
+  imo:    { fill:'#1a3a5c', stroke:'#4a90d4', text:'#82b8f0', label:'IMO / Intl' },
+  class:  { fill:'#0d1f35', stroke:'#378ADD', text:'#7ab8f0', label:'Classification' },
+  reg:    { fill:'#0a1f18', stroke:'#1D9E75', text:'#5ecfaa', label:'Regulators' },
+  def:    { fill:'#17133a', stroke:'#7F77DD', text:'#a89fe8', label:'Defence' },
+  res:    { fill:'#2a1a00', stroke:'#c8851a', text:'#e8b46a', label:'Research' },
+  ind:    { fill:'#0f1e07', stroke:'#5a9020', text:'#8ac84a', label:'Industry' },
+  test:   { fill:'#2a0f08', stroke:'#c85030', text:'#e88060', label:'Test & Ops' },
+  init:   { fill:'#1a1430', stroke:'#9B72CF', text:'#c8a8f0', label:'Initiative' },
+  action: { fill:'#161616', stroke:'#505050', text:'#909090', label:'Action' },
+  ph:     { fill:'#141412', stroke:'#3a3a38', text:'#5a5a58', label:'Placeholder' },
+};
+
+// Level to CSS class mapping
+const LEVEL_CLASS = {
+  center:      'lv1',  // L1 — dominant center
+  imo:         'lv2',  // L2 — IMO special (single dominant branch)
+  region:      'lv3',  // L3 — UK, US, AUS/ASIA
+  hub:         'lv4',  // L4 — Category hubs
+  stakeholder: 'lv5',  // L5 — Entity nodes
+  initiative:  'lv5',
+  placeholder: 'lv5',
+  action:      'lv6',  // L6 — Task/action nodes
+};
+
+// ─── DATA MODEL ───
+let NODES = {}, EDGES = [], ACTIONS = {}, INITIATIVES = {};
+let _uid = 1;
+const uid = p => `${p}${Date.now()}_${_uid++}`;
+const today = () => new Date().toISOString().slice(0,10);
+
+function mkNode(o) {
+  return Object.assign({
+    id:uid('n'), type:'stakeholder', cat:'class', region:'',
+    title:'New Node', subtitle:'', role:'', engagement:'', relevance:'',
+    notes:'', initiative:'', owner:'', status:'ns', priority:'m',
+    lastUpdated:today(), x:0, y:0, collapsed:false,
+  }, o);
+}
+function mkAction(o) {
+  return Object.assign({
+    id:uid('a'), parentId:'', title:'New Action', desc:'',
+    owner:'', due:'', status:'ns', priority:'m', done:false,
+    initiative:'', notes:'', nodeId:'', created:today(),
+  }, o);
+}
+
+// ─── CANVAS STATE ───
+let pan={x:0,y:0}, zoom=1;
+const MIN_Z=0.08, MAX_Z=3;
+let isDragCanvas=false, isDragNode=false, isSelecting=false, isConnecting=false;
+let connectSrc=null;
+let dragStart={x:0,y:0}, panStart={x:0,y:0}, dragOffsets={}, selStart={};
+let selectedNodes=new Set(), selectedEdge=null;
+let ctxNodeId=null, ctxEdgeId=null, spNodeId=null, editActionId=null;
+let anType='stakeholder', anCat='class';
+let undoStack=[], redoStack=[];
+
+// ─── UNDO ───
+function pushUndo() {
+  undoStack.push(JSON.stringify({NODES,EDGES,ACTIONS,INITIATIVES}));
+  if(undoStack.length>40) undoStack.shift();
+  redoStack=[];
+}
+function undo() {
+  if(!undoStack.length) return;
+  redoStack.push(JSON.stringify({NODES,EDGES,ACTIONS,INITIATIVES}));
+  const s=JSON.parse(undoStack.pop());
+  NODES=s.NODES; EDGES=s.EDGES; ACTIONS=s.ACTIONS; INITIATIVES=s.INITIATIVES;
+  rebuildAll(); toast('Undo');
+}
+function redo() {
+  if(!redoStack.length) return;
+  undoStack.push(JSON.stringify({NODES,EDGES,ACTIONS,INITIATIVES}));
+  const s=JSON.parse(redoStack.pop());
+  NODES=s.NODES; EDGES=s.EDGES; ACTIONS=s.ACTIONS; INITIATIVES=s.INITIATIVES;
+  rebuildAll(); toast('Redo');
+}
+
+// ─── HELPERS ───
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function cc(n){ return CAT_HEX[n.cat] || CAT_HEX.class }
+function getCat(n){ return CAT_HEX[n.cat] || CAT_HEX.class }
+function lvClass(n){
+  if(n.type==='center') return 'lv1';
+  if(n.id==='imo-hub' || (n.type==='region' && n.cat==='imo')) return 'lv2';
+  if(n.type==='region') return 'lv3';
+  if(n.type==='hub') return 'lv4';
+  if(n.type==='action') return 'lv6';
+  return 'lv5'; // stakeholder, initiative, placeholder
+}
+const getActions=(nid)=>Object.values(ACTIONS).filter(a=>a.parentId===nid);
+const getOpenActions=(nid)=>getActions(nid).filter(a=>!a.done);
+
+// ─── NODE RENDERING ───
+function renderNode(n) {
+  const old=document.getElementById('nd-'+n.id);
+  if(old) old.remove();
+
+  const el=document.createElement('div');
+  el.id='nd-'+n.id;
+  el.dataset.id=n.id;
+
+  const lv=lvClass(n);
+  const cat=getCat(n);
+  let cls=`node ${lv}`;
+  if(n.type==='initiative') cls+=' n-initiative';
+  if(n.type==='placeholder') cls+=' n-placeholder';
+  if(n.done) cls+=' done-node';
+  if(n.collapsed) cls+=' collapsed-node';
+  el.className=cls;
+  el.style.left=n.x+'px';
+  el.style.top=n.y+'px';
+  el.style.borderColor=cat.stroke;
+  el.style.background=cat.fill;
+
+  const openActs=getOpenActions(n.id);
+  const totActs=getActions(n.id).length;
+  const SL={ns:'b-ns',ip:'b-ip',bl:'b-bl',dn:'b-dn'};
+  const PL={h:'b-ph',m:'b-pm',l:'b-pl'};
+
+  const actBadge=totActs>0
+    ?`<span class="badge b-act" onclick="scrollToActions('${n.id}')" title="${openActs.length} open">✓ ${openActs.length>0?openActs.length+' open':'all done'}</span>`:''
+  ;
+  const initBadge=n.initiative
+    ?`<span class="badge b-init">◆ ${esc(n.initiative)}</span>`:''
+  ;
+  const stBadge=(lv==='lv5'||lv==='lv6')&&n.status
+    ?`<span class="badge ${SL[n.status]||''}">${{ns:'Not Started',ip:'In Progress',bl:'Blocked',dn:'Done'}[n.status]||''}</span>`:''
+  ;
+  const prBadge=(lv==='lv5'||lv==='lv6')&&n.priority
+    ?`<span class="badge ${PL[n.priority]||''}">${{h:'High',m:'Medium',l:'Low'}[n.priority]||''}</span>`:''
+  ;
+
+  const hasFooter=(lv==='lv5'||lv==='lv6')&&(actBadge||initBadge||stBadge||prBadge);
+  const hasBody=(lv==='lv5'||lv==='lv6')&&n.subtitle;
+  const dotStyle=`background:${cat.stroke}`;
+
+  const checkHtml=n.type==='action'
+    ?`<div class="acb ${n.done?'ck':''}" onclick="toggleDone('${n.id}')"></div>`:''
+  ;
+  const dotHtml=n.type!=='action'
+    ?`<span class="ndot" style="${dotStyle}"></span>`:''
+  ;
+
+  el.innerHTML=`
+    <div class="nab-wrap">
+      <button class="nab nab-c" title="Connect" onclick="startConnect('${n.id}',event)">⟳</button>
+      <button class="nab" title="Edit" onclick="openSP('${n.id}')">✎</button>
+      <button class="nab" title="Add Action" onclick="quickAction('${n.id}')">+✓</button>
+      <button class="nab" title="Duplicate" onclick="dupeNode('${n.id}')">⧉</button>
+      <button class="nab nab-d" title="Delete" onclick="deleteNode('${n.id}')">✕</button>
+    </div>
+    <div class="nh">
+      ${checkHtml}${dotHtml}
+      <div class="ntitle" style="color:${n.done?'rgba(160,157,148,0.5)':cat.text||'var(--text)'};text-decoration:${n.done?'line-through':'none'}"
+        contenteditable="false" spellcheck="false"
+        ondblclick="enableEdit(this,event)"
+        onblur="saveField('${n.id}','title',this)"
+        onkeydown="edKey(event,this,'${n.id}','title')"
+      >${esc(n.title)}</div>
+    </div>
+    ${hasBody?`<div class="nb"><div class="nsub" style="color:${cat.text}"
+      contenteditable="false" spellcheck="false"
+      ondblclick="enableEdit(this,event)"
+      onblur="saveField('${n.id}','subtitle',this)"
+      onkeydown="edKey(event,this,'${n.id}','subtitle')"
+    >${esc(n.subtitle)}</div></div>`:''}
+    ${hasFooter?`<div class="nf">${actBadge}${initBadge}${stBadge}${prBadge}</div>`:''}
+    <div class="cport pt" onmousedown="portMD(event,'${n.id}')"></div>
+    <div class="cport pb" onmousedown="portMD(event,'${n.id}')"></div>
+    <div class="cport pl" onmousedown="portMD(event,'${n.id}')"></div>
+    <div class="cport pr" onmousedown="portMD(event,'${n.id}')"></div>
+    <button class="cbtn" onclick="toggleCollapse('${n.id}')">${n.collapsed?'▸':'▾'}</button>
+  `;
+
+  el.addEventListener('mousedown', nodeMD);
+  el.addEventListener('contextmenu', nodeCtxMenu);
+  document.getElementById('canvas-root').appendChild(el);
+}
+
+// ─── EDGE SYSTEM — the key fix ───
+// All edges are SVG paths inside #edges-svg which is inside #canvas-root.
+// Both the SVG and node divs share the same coordinate space (canvas-root coords).
+// The transform is applied to canvas-root as a whole, so both SVG paths
+// and div positions are always consistent — no coordinate mismatch possible.
+
+function nodeCenter(id) {
+  const n=NODES[id]; if(!n) return {x:0,y:0};
+  const el=document.getElementById('nd-'+id);
+  const w=el?el.offsetWidth:180;
+  const h=el?el.offsetHeight:60;
+  return {x: n.x + w/2, y: n.y + h/2};
+}
+
+function edgeTypeClass(e){
+  const n=NODES[e.from];
+  if(!n) return 'ep-stake';
+  if(e.type==='action') return 'ep-action';
+  if(e.type==='initiative') return 'ep-init';
+  const lv=lvClass(n);
+  if(lv==='lv1'||lv==='lv2') return 'ep-region';
+  if(lv==='lv3') return 'ep-region';
+  if(lv==='lv4') return 'ep-hub';
+  return 'ep-stake';
+}
+
+function edgeStroke(e){
+  const n=NODES[e.from];
+  if(!n) return '#606060';
+  const cat=getCat(n);
+  return cat.stroke;
+}
+
+function computePath(fx,fy,tx,ty){
+  const dx=tx-fx, dy=ty-fy;
+  const dist=Math.sqrt(dx*dx+dy*dy);
+  // Cubic bezier: control points vary by distance for natural curves
+  const bend=Math.min(dist*0.45, 220);
+  const cx1=fx+dx*0.1, cy1=fy+bend*(dy>0?0.5:-0.5);
+  const cx2=tx-dx*0.1, cy2=ty-bend*(dy>0?0.5:-0.5);
+  return `M${fx.toFixed(1)},${fy.toFixed(1)} C${(fx+bend*(dx/dist||0)).toFixed(1)},${fy.toFixed(1)} ${(tx-bend*(dx/dist||0)).toFixed(1)},${ty.toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)}`;
+}
+
+function renderEdge(id) {
+  const e=EDGES.find(x=>x.id===id);
+  if(!e) return;
+  const svg=document.getElementById('edges-svg');
+  let p=document.getElementById('ep-'+id);
+  if(!p){
+    p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.id='ep-'+id;
+    p.dataset.eid=id;
+    // Critical: set attributes directly, never style.stroke (CSS vars don't work in SVG attributes)
+    p.setAttribute('fill','none');
+    p.setAttribute('stroke-linecap','round');
+    p.classList.add('ep');
+    p.classList.add(edgeTypeClass(e));
+    p.addEventListener('click', edgeClick);
+    p.addEventListener('contextmenu', edgeCtxFn);
+    svg.appendChild(p);
+  }
+  updateEdge(e,p);
+}
+
+function updateEdge(e,p) {
+  // Check if either node is collapsed ancestor — could hide edge
+  const fn=NODES[e.from], tn=NODES[e.to];
+  if(!fn||!tn){ p.style.display='none'; return; }
+
+  const fEl=document.getElementById('nd-'+e.from);
+  const tEl=document.getElementById('nd-'+e.to);
+  if(!fEl||!tEl){ p.style.display='none'; return; }
+
+  p.style.display='';
+  const fc=nodeCenter(e.from);
+  const tc=nodeCenter(e.to);
+
+  // Build curved path
+  const d=computePath(fc.x,fc.y,tc.x,tc.y);
+  p.setAttribute('d',d);
+
+  // Stroke color — real hex, always works in SVG
+  const stroke=edgeStroke(e);
+  p.setAttribute('stroke', stroke);
+
+  // Stroke width based on hierarchy
+  const lv=lvClass(fn);
+  let sw=2;
+  if(lv==='lv1') sw=4;
+  else if(lv==='lv2') sw=3.5;
+  else if(lv==='lv3') sw=3;
+  else if(lv==='lv4') sw=2.5;
+  if(e.type==='action') sw=2;
+  if(e.type==='initiative') sw=2.5;
+  p.setAttribute('stroke-width', sw);
+
+  // Opacity
+  let op=0.75;
+  if(lv==='lv1'||lv==='lv2') op=0.92;
+  else if(lv==='lv3') op=0.85;
+  if(e.type==='action') op=0.7;
+  if(e.type==='initiative') op=0.6;
+  p.setAttribute('opacity', op);
+
+  // Dash for action / initiative edges
+  if(e.type==='action') p.setAttribute('stroke-dasharray','7 5');
+  else if(e.type==='initiative') p.setAttribute('stroke-dasharray','11 5');
+  else p.removeAttribute('stroke-dasharray');
+}
+
+function addEdge(fromId,toId,type='default'){
+  const id=uid('e');
+  EDGES.push({id,from:fromId,to:toId,type});
+  renderEdge(id);
+  return id;
+}
+
+function removeEdge(id){
+  EDGES=EDGES.filter(e=>e.id!==id);
+  document.getElementById('ep-'+id)?.remove();
+}
+
+function refreshEdges(){
+  EDGES.forEach(e=>{
+    let p=document.getElementById('ep-'+e.id);
+    if(!p){ renderEdge(e.id); p=document.getElementById('ep-'+e.id); }
+    if(p) updateEdge(e,p);
+  });
+}
+
+// ─── REBUILD ALL ───
+function rebuildAll(){
+  document.querySelectorAll('.node').forEach(el=>el.remove());
+  document.querySelectorAll('#edges-svg path').forEach(el=>el.remove());
+  Object.values(NODES).forEach(n=>renderNode(n));
+  EDGES.forEach(e=>renderEdge(e.id));
+  updateSB(); updateMM();
+}
+
+// ─── CANVAS MOUSE ───
+const CW=()=>document.getElementById('cw');
+document.getElementById('cw').addEventListener('mousedown',cwMD);
+document.getElementById('cw').addEventListener('wheel',cwWhl,{passive:false});
+document.addEventListener('mousemove',docMM);
+document.addEventListener('mouseup',docMU);
+
+function cwMD(e){
+  const t=e.target;
+  if(t.closest('.node')||t.closest('#toolbar')||t.closest('.fpanel')||
+     t.closest('#sp')||t.closest('#ctx')||t.closest('#help-modal')||
+     t.closest('#action-modal')||t.closest('#search-bar')||t.closest('#search-res')) return;
+  if(isConnecting){cancelConnect();return;}
+  hideCtx();
+  if(e.button===0){
+    if(e.shiftKey){
+      isSelecting=true;
+      const r=CW().getBoundingClientRect();
+      selStart={x:(e.clientX-r.left-pan.x)/zoom,y:(e.clientY-r.top-pan.y)/zoom};
+      const sb=document.getElementById('sel-box');
+      sb.style.cssText=`left:${selStart.x}px;top:${selStart.y}px;width:0;height:0;display:block`;
+    } else {
+      isDragCanvas=true;
+      dragStart={x:e.clientX,y:e.clientY};panStart={x:pan.x,y:pan.y};
+      CW().classList.add('grabbing');clearSel();
+    }
+  }
+}
+function cwWhl(e){
+  e.preventDefault();
+  const r=CW().getBoundingClientRect();
+  setZ(zoom*(e.deltaY<0?1.1:0.91),e.clientX-r.left,e.clientY-r.top);
+}
+
+function nodeMD(e){
+  if(e.target.closest('.nab-wrap')||e.target.closest('.cport')||
+     e.target.closest('.cbtn')||e.target.closest('.acb')||
+     e.target.closest('.b-act')||e.target.contentEditable==='true') return;
+  if(e.button!==0) return;
+  e.stopPropagation();
+  if(isConnecting){finishConnect(e.target.closest('.node').dataset.id);return;}
+  hideCtx();
+  const id=e.target.closest('.node').dataset.id;
+  if(!selectedNodes.has(id)){if(!e.shiftKey) clearSel(); selNode(id);}
+  isDragNode=true;
+  const r=CW().getBoundingClientRect();
+  const mx=(e.clientX-r.left-pan.x)/zoom, my=(e.clientY-r.top-pan.y)/zoom;
+  dragOffsets={};
+  selectedNodes.forEach(sid=>{const n=NODES[sid];if(n)dragOffsets[sid]={dx:mx-n.x,dy:my-n.y};});
+  selectedNodes.forEach(sid=>document.getElementById('nd-'+sid)?.classList.add('dragging'));
+}
+function portMD(e,id){e.stopPropagation();startConnect(id,e);}
+
+function docMM(e){
+  if(isDragCanvas){
+    pan.x=panStart.x+(e.clientX-dragStart.x);
+    pan.y=panStart.y+(e.clientY-dragStart.y);
+    applyXform();return;
+  }
+  if(isDragNode){
+    const r=CW().getBoundingClientRect();
+    const mx=(e.clientX-r.left-pan.x)/zoom, my=(e.clientY-r.top-pan.y)/zoom;
+    selectedNodes.forEach(id=>{
+      const n=NODES[id],o=dragOffsets[id];
+      if(!n||!o) return;
+      n.x=mx-o.dx; n.y=my-o.dy;
+      const el=document.getElementById('nd-'+id);
+      if(el){el.style.left=n.x+'px';el.style.top=n.y+'px';}
+    });
+    refreshEdges(); updateMM(); return;
+  }
+  if(isSelecting){
+    const r=CW().getBoundingClientRect();
+    const cx=(e.clientX-r.left-pan.x)/zoom, cy=(e.clientY-r.top-pan.y)/zoom;
+    const sb=document.getElementById('sel-box');
+    const x=Math.min(cx,selStart.x),y=Math.min(cy,selStart.y);
+    sb.style.left=x+'px';sb.style.top=y+'px';
+    sb.style.width=Math.abs(cx-selStart.x)+'px';sb.style.height=Math.abs(cy-selStart.y)+'px';
+    return;
+  }
+  if(isConnecting&&connectSrc){
+    // Live edge in screen coords
+    const r=CW().getBoundingClientRect();
+    const sn=NODES[connectSrc];
+    const sEl=document.getElementById('nd-'+connectSrc);
+    const sw=sEl?sEl.offsetWidth:0,sh=sEl?sEl.offsetHeight:0;
+    // Convert canvas coords to screen coords
+    const sx=(sn.x+sw/2)*zoom+pan.x+r.left;
+    const sy=(sn.y+sh/2)*zoom+pan.y+r.top;
+    const tx=e.clientX,ty=e.clientY;
+    const d=`M${sx},${sy} C${sx+(tx-sx)*0.5},${sy} ${tx-(tx-sx)*0.5},${ty} ${tx},${ty}`;
+    document.getElementById('live-path').setAttribute('d',d);
+  }
+}
+
+function docMU(e){
+  if(isDragNode){
+    selectedNodes.forEach(id=>document.getElementById('nd-'+id)?.classList.remove('dragging'));
+    isDragNode=false; autoSave();
+  }
+  if(isDragCanvas){isDragCanvas=false;CW().classList.remove('grabbing');}
+  if(isSelecting){
+    isSelecting=false;
+    const sb=document.getElementById('sel-box');
+    const bx=parseFloat(sb.style.left),by=parseFloat(sb.style.top);
+    const bw=parseFloat(sb.style.width),bh=parseFloat(sb.style.height);
+    Object.values(NODES).forEach(n=>{
+      const el=document.getElementById('nd-'+n.id);if(!el)return;
+      const nw=el.offsetWidth,nh=el.offsetHeight;
+      if(n.x+nw>bx&&n.x<bx+bw&&n.y+nh>by&&n.y<by+bh) selNode(n.id,true);
+    });
+    sb.style.display='none';
+  }
+}
+
+// ─── TRANSFORM ───
+function applyXform(){
+  document.getElementById('canvas-root').style.transform=`translate(${pan.x}px,${pan.y}px) scale(${zoom})`;
+  document.getElementById('zoom-lbl').textContent=Math.round(zoom*100)+'%';
+  updateMM();
+}
+function zoomIn(){setZ(zoom*1.15);}
+function zoomOut(){setZ(zoom/1.15);}
+function setZ(z,cx,cy){
+  const oz=zoom;
+  zoom=Math.max(MIN_Z,Math.min(MAX_Z,z));
+  if(cx!==undefined){pan.x=cx-(cx-pan.x)*(zoom/oz);pan.y=cy-(cy-pan.y)*(zoom/oz);}
+  applyXform();
+}
+function resetView(){
+  const W=window.innerWidth,H=window.innerHeight;
+  pan.x=W/2-4000*0.36; pan.y=H/2-3850*0.36; zoom=0.36;
+  applyXform();
+}
+
+// ─── SELECTION ───
+function selNode(id,add=false){
+  if(!add) clearSel();
+  selectedNodes.add(id);
+  document.getElementById('nd-'+id)?.classList.add('selected');
+  if(selectedNodes.size===1) updateSP(id);
+}
+function clearSel(){
+  selectedNodes.forEach(id=>document.getElementById('nd-'+id)?.classList.remove('selected'));
+  selectedNodes.clear(); selectedEdge=null;
+  document.querySelectorAll('.ep').forEach(p=>p.classList.remove('sel-ep'));
+}
+function edgeClick(e){
+  e.stopPropagation();clearSel();
+  selectedEdge=e.target.dataset.eid;
+  e.target.classList.add('sel-ep');
+}
+
+// ─── CONNECT ───
+function toggleConnectMode(){isConnecting?cancelConnect():enableConnect();}
+function enableConnect(){
+  isConnecting=true;
+  document.getElementById('btn-con').classList.add('active');
+  CW().classList.add('connecting');
+  toast('Click source node, then target node');
+}
+function startConnect(id,e){
+  if(e) e.stopPropagation();
+  isConnecting=true; connectSrc=id;
+  document.getElementById('btn-con').classList.add('active');
+  CW().classList.add('connecting');
+  document.getElementById('live-edge').style.display='block';
+  toast('Click target node to connect…');
+}
+function finishConnect(toId){
+  if(!connectSrc||!toId||connectSrc===toId){cancelConnect();return;}
+  if(EDGES.find(e=>(e.from===connectSrc&&e.to===toId)||(e.from===toId&&e.to===connectSrc))){
+    toast('Connection already exists');cancelConnect();return;
+  }
+  pushUndo(); addEdge(connectSrc,toId); cancelConnect(); toast('Connected!'); autoSave();
+}
+function cancelConnect(){
+  isConnecting=false; connectSrc=null;
+  document.getElementById('btn-con').classList.remove('active');
+  CW().classList.remove('connecting');
+  document.getElementById('live-edge').style.display='none';
+}
+
+// ─── INLINE EDIT ───
+function enableEdit(el,e){
+  e.stopPropagation();
+  el.contentEditable='true'; el.focus();
+  const r=document.createRange();r.selectNodeContents(el);
+  const s=window.getSelection();s.removeAllRanges();s.addRange(r);
+}
+function saveField(id,field,el){
+  el.contentEditable='false';
+  const n=NODES[id];if(!n)return;
+  n[field]=el.textContent.trim();
+  n.lastUpdated=today();
+  if(field==='title'){
+    document.getElementById('sp-title').textContent=n.title;
+    const f=document.getElementById('sp-title-f');if(f)f.value=n.title;
+    updateMM();
+  }
+  autoSave();
+}
+function edKey(e,el,id,field){
+  if(e.key==='Enter'){e.preventDefault();el.blur();}
+  if(e.key==='Escape'){el.textContent=esc(NODES[id]?.[field]||'');el.blur();}
+}
+
+// ─── TOGGLE DONE (action node) ───
+function toggleDone(id){
+  const n=NODES[id];if(!n)return;
+  n.done=!n.done; n.status=n.done?'dn':'ns';
+  if(n.actionRef&&ACTIONS[n.actionRef]){
+    ACTIONS[n.actionRef].done=n.done;
+    ACTIONS[n.actionRef].status=n.status;
+  }
+  renderNode(n);
+  // Re-render parent badge
+  EDGES.filter(e=>e.to===id).forEach(e=>{if(NODES[e.from])renderNode(NODES[e.from]);});
+  if(spNodeId) updateSP(spNodeId);
+  autoSave();
+}
+
+// ─── DELETE / DUPE / COLLAPSE ───
+function deleteNode(id){
+  if(!NODES[id]) return;
+  pushUndo();
+  document.getElementById('nd-'+id)?.remove();
+  EDGES.filter(e=>e.from===id||e.to===id).forEach(e=>{
+    document.getElementById('ep-'+e.id)?.remove();
+  });
+  EDGES=EDGES.filter(e=>e.from!==id&&e.to!==id);
+  const n=NODES[id];
+  if(n?.actionRef&&ACTIONS[n.actionRef]) delete ACTIONS[n.actionRef];
+  delete NODES[id];
+  selectedNodes.delete(id);
+  if(spNodeId===id) closeSP();
+  updateSB();updateMM();autoSave();toast('Deleted');
+}
+function dupeNode(id){
+  const n=NODES[id];if(!n)return;
+  pushUndo();
+  const nn=mkNode({...n,id:uid('n'),x:n.x+70,y:n.y+70});
+  NODES[nn.id]=nn; renderNode(nn); selNode(nn.id);
+  updateSB();updateMM();autoSave();toast('Duplicated');
+}
+function toggleCollapse(id){
+  const n=NODES[id];if(!n)return;
+  n.collapsed=!n.collapsed;
+  // Hide/show all descendant nodes
+  const kids=EDGES.filter(e=>e.from===id).map(e=>e.to);
+  const hide=n.collapsed;
+  const toggleDescendants=(nid,h)=>{
+    EDGES.filter(e=>e.from===nid).forEach(e=>{
+      const el=document.getElementById('nd-'+e.to);
+      const ep=document.getElementById('ep-'+e.id);
+      if(el) el.style.display=h?'none':'';
+      if(ep) ep.style.display=h?'none':'';
+      toggleDescendants(e.to,h);
+    });
+  };
+  toggleDescendants(id,hide);
+  renderNode(n);
+}
+
+// ─── ADD NODE ───
+function openFP(id){
+  document.querySelectorAll('.fpanel').forEach(p=>p.classList.remove('open'));
+  const p=document.getElementById(id);
+  if(p){
+    p.classList.add('open');
+    if(id==='add-action-panel') populateParentSel();
+  }
+}
+function closeFP(id){document.getElementById(id)?.classList.remove('open');}
+function selType(btn){
+  anType=btn.dataset.t;
+  document.querySelectorAll('#an-types .topt').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('an-sub-wrap').style.display=(anType==='hub'||anType==='center')?'none':'';
+}
+function selCat(btn,gridId){
+  anCat=btn.dataset.c;
+  document.querySelectorAll('#'+gridId+' .copt').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function doAddNode(){
+  const title=document.getElementById('an-title').value.trim()||'New Node';
+  const subtitle=document.getElementById('an-subtitle')?.value.trim()||'';
+  const region=document.getElementById('an-region').value;
+  const r=CW().getBoundingClientRect();
+  const cx=(r.width/2-pan.x)/zoom+(Math.random()-.5)*300;
+  const cy=(r.height/2-pan.y)/zoom+(Math.random()-.5)*200;
+  pushUndo();
+  const n=mkNode({type:anType,cat:anCat,title,subtitle,region,x:cx-90,y:cy-40});
+  NODES[n.id]=n; renderNode(n); selNode(n.id);
+  closeFP('add-node-panel');
+  document.getElementById('an-title').value='';
+  if(document.getElementById('an-subtitle'))document.getElementById('an-subtitle').value='';
+  updateSB();updateMM();autoSave();toast('Node added');
+}
+
+// ─── ADD ACTION ───
+function populateParentSel(){
+  const sel=document.getElementById('aa-parent');
+  sel.innerHTML='<option value="">— No parent —</option>';
+  Object.values(NODES).filter(n=>n.type!=='action').sort((a,b)=>a.title.localeCompare(b.title))
+    .forEach(n=>{
+      const opt=document.createElement('option');
+      opt.value=n.id;
+      opt.textContent=n.title+(n.region?` [${n.region.toUpperCase()}]`:'');
+      if(selectedNodes.size===1&&selectedNodes.has(n.id)) opt.selected=true;
+      sel.appendChild(opt);
+    });
+}
+function quickAction(nodeId){
+  openFP('add-action-panel');
+  populateParentSel();
+  const sel=document.getElementById('aa-parent');
+  if(sel) sel.value=nodeId;
+}
+function scrollToActions(nodeId){openSP(nodeId);setTimeout(()=>{const el=document.getElementById('sp-acts');if(el)el.scrollIntoView({behavior:'smooth'});},220);}
+
+function doAddAction(){
+  const title=document.getElementById('aa-title').value.trim()||'New Action';
+  const desc=document.getElementById('aa-desc').value.trim();
+  const owner=document.getElementById('aa-owner').value.trim();
+  const due=document.getElementById('aa-due').value;
+  const status=document.getElementById('aa-status').value;
+  const prio=document.getElementById('aa-prio').value;
+  const init=document.getElementById('aa-init').value.trim();
+  const parentId=document.getElementById('aa-parent').value;
+  pushUndo();
+  const a=mkAction({title,desc,owner,due,status,priority:prio,initiative:init,parentId});
+  ACTIONS[a.id]=a;
+  if(parentId&&NODES[parentId]){
+    const pn=NODES[parentId];
+    const an=mkNode({
+      type:'action',cat:'action',region:pn.region,
+      title,subtitle:(owner?`Owner: ${owner}  `:'')+( due?`Due: ${due}`:''),
+      status,priority:prio,initiative:init,x:pn.x+280,y:pn.y+60,
+    });
+    an.actionRef=a.id; a.nodeId=an.id;
+    NODES[an.id]=an; renderNode(an);
+    addEdge(parentId,an.id,'action');
+    renderNode(NODES[parentId]); // refresh badge
+  }
+  closeFP('add-action-panel');
+  document.getElementById('aa-title').value='';
+  document.getElementById('aa-desc').value='';
+  document.getElementById('aa-owner').value='';
+  document.getElementById('aa-due').value='';
+  updateSB();updateMM();autoSave();toast('Action added');
+  if(spNodeId===parentId) updateSP(spNodeId);
+}
+
+// ─── ADD INITIATIVE ───
+function doAddInitiative(){
+  const name=document.getElementById('ai-name').value.trim()||'New Initiative';
+  const desc=document.getElementById('ai-desc').value.trim();
+  const owner=document.getElementById('ai-owner').value.trim();
+  const region=document.getElementById('ai-region').value;
+  pushUndo();
+  const r=CW().getBoundingClientRect();
+  const cx=(r.width/2-pan.x)/zoom+(Math.random()-.5)*300;
+  const cy=(r.height/2-pan.y)/zoom+(Math.random()-.5)*200;
+  const n=mkNode({type:'initiative',cat:'init',title:name,subtitle:desc,owner,region,initiative:name,x:cx-90,y:cy-40});
+  NODES[n.id]=n; renderNode(n); selNode(n.id);
+  closeFP('add-init-panel');
+  document.getElementById('ai-name').value='';
+  updateSB();updateMM();autoSave();toast('Initiative added');
+}
+
+// ─── CONTEXT MENU ───
+function nodeCtxMenu(e){
+  e.preventDefault();e.stopPropagation();
+  ctxNodeId=e.target.closest('.node').dataset.id;ctxEdgeId=null;
+  document.getElementById('ctx-edge-w').style.display='none';
+  showCtx(e.clientX,e.clientY);
+}
+function edgeCtxFn(e){
+  e.preventDefault();e.stopPropagation();
+  ctxEdgeId=e.target.dataset.eid;ctxNodeId=null;
+  document.getElementById('ctx-edge-w').style.display='block';
+  showCtx(e.clientX,e.clientY);
+}
+function showCtx(x,y){const m=document.getElementById('ctx');m.style.cssText=`display:block;left:${x}px;top:${y}px`;}
+function hideCtx(){document.getElementById('ctx').style.display='none';}
+document.addEventListener('click',hideCtx);
+
+function ctxDo(a){
+  hideCtx();
+  if(a==='edit'&&ctxNodeId) openSP(ctxNodeId);
+  if(a==='connect'&&ctxNodeId) startConnect(ctxNodeId,null);
+  if(a==='add-action'&&ctxNodeId) quickAction(ctxNodeId);
+  if(a==='duplicate'&&ctxNodeId) dupeNode(ctxNodeId);
+  if(a==='delete'&&ctxNodeId) deleteNode(ctxNodeId);
+  if(a==='del-edge'&&ctxEdgeId){pushUndo();removeEdge(ctxEdgeId);selectedEdge=null;autoSave();}
+  if(a==='collapse'&&ctxNodeId) toggleCollapse(ctxNodeId);
+  if(a==='add-child'&&ctxNodeId){
+    const pn=NODES[ctxNodeId];
+    pushUndo();
+    const child=mkNode({type:'stakeholder',cat:pn.cat,region:pn.region,title:'New Node',x:pn.x+280,y:pn.y+70});
+    NODES[child.id]=child; renderNode(child); addEdge(ctxNodeId,child.id);
+    selNode(child.id); updateSB();updateMM();autoSave();toast('Child added');
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    hideCtx();cancelConnect();closeSearch();
+    document.getElementById('help-modal').classList.remove('open');
+    document.getElementById('action-modal').classList.remove('open');
+    document.querySelectorAll('.fpanel').forEach(p=>p.classList.remove('open'));
+  }
+  if((e.key==='Delete'||e.key==='Backspace')&&
+     document.activeElement.tagName!=='INPUT'&&
+     document.activeElement.tagName!=='TEXTAREA'&&
+     document.activeElement.contentEditable!=='true'){
+    [...selectedNodes].forEach(id=>deleteNode(id));
+    if(selectedEdge){pushUndo();removeEdge(selectedEdge);selectedEdge=null;autoSave();}
+  }
+  if((e.metaKey||e.ctrlKey)&&e.key==='z'&&!e.shiftKey){e.preventDefault();undo();}
+  if((e.metaKey||e.ctrlKey)&&(e.key==='Z'||e.key==='y')){e.preventDefault();redo();}
+  if((e.metaKey||e.ctrlKey)&&(e.key==='+'||e.key==='=')){e.preventDefault();zoomIn();}
+  if((e.metaKey||e.ctrlKey)&&e.key==='-'){e.preventDefault();zoomOut();}
+});
+
+// ─── SIDE PANEL ───
+function openSP(id){spNodeId=id;updateSP(id);document.getElementById('sp').classList.add('open');}
+function closeSP(){document.getElementById('sp').classList.remove('open');spNodeId=null;}
+
+function updateSP(id){
+  spNodeId=id;const n=NODES[id];if(!n)return;
+  document.getElementById('sp-title').textContent=n.title;
+  document.getElementById('sp-badge').textContent=n.type;
+  const acts=getActions(id);
+  document.getElementById('sp-body').innerHTML=buildSP(n,acts);
+}
+
+function buildSP(n,acts){
+  const SL={ns:'Not Started',ip:'In Progress',bl:'Blocked',dn:'Done'};
+  const PL={h:'High',m:'Medium',l:'Low'};
+  const SC={ns:'b-ns',ip:'b-ip',bl:'b-bl',dn:'b-dn'};
+  const PC={h:'b-ph',m:'b-pm',l:'b-pl'};
+  const cat=getCat(n);
+
+  const connected=EDGES.filter(e=>e.from===n.id||e.to===n.id)
+    .map(e=>NODES[e.from===n.id?e.to:e.from]).filter(Boolean);
+
+  const connHtml=connected.map(cn=>{
+    const cc2=getCat(cn);
+    return `<div class="cni" onclick="focusNode('${cn.id}');openSP('${cn.id}')">
+      <span style="width:7px;height:7px;border-radius:50%;background:${cc2.stroke};flex-shrink:0"></span>
+      <span style="flex:1;font-size:11.5px;color:var(--text)">${esc(cn.title)}</span>
+      <span style="font-size:10px;color:var(--text3);font-family:var(--mono)">${cn.type}</span>
+    </div>`;
+  }).join('');
+
+  const actsHtml=acts.map(a=>`
+    <div class="ai-item ${a.done?'ai-done':''}" onclick="openAM('${a.id}')">
+      <div class="ai-top">
+        <div class="acb ${a.done?'ck':''}" onclick="event.stopPropagation();toggleActFromPanel('${a.id}')"></div>
+        <div class="ai-txt ${a.done?'ai-dt':''}">${esc(a.title)}</div>
+        <button class="ai-edb" onclick="event.stopPropagation();openAM('${a.id}')">✎</button>
+      </div>
+      <div class="ai-meta">
+        <span class="badge ${SC[a.status]||''}">${SL[a.status]||''}</span>
+        <span class="badge ${PC[a.priority]||''}">${PL[a.priority]||''}</span>
+        ${a.owner?`<span class="badge b-ns">👤 ${esc(a.owner)}</span>`:''}
+        ${a.due?`<span class="badge b-ns">📅 ${a.due}</span>`:''}
+        ${a.initiative?`<span class="badge b-init">◆ ${esc(a.initiative)}</span>`:''}
+      </div>
+    </div>`).join('');
+
+  return `
+    <div class="sps"><div class="sps-title">Identity</div>
+      <div class="sf"><div class="sl">Title</div><input class="si" id="sp-title-f" value="${esc(n.title)}" oninput="spUp('title',this.value)"/></div>
+      <div class="sf"><div class="sl">Subtitle / Role</div><input class="si" value="${esc(n.subtitle)}" oninput="spUp('subtitle',this.value)"/></div>
+    </div>
+    <div class="sps"><div class="sps-title">Classification</div>
+      <div class="sr2">
+        <div class="sf"><div class="sl">Region</div>
+          <select class="si" onchange="spUp('region',this.value)">
+            <option value="" ${!n.region?'selected':''}>— None —</option>
+            <option value="global" ${n.region==='global'?'selected':''}>Global / IMO</option>
+            <option value="uk" ${n.region==='uk'?'selected':''}>United Kingdom</option>
+            <option value="us" ${n.region==='us'?'selected':''}>United States</option>
+            <option value="aus" ${n.region==='aus'?'selected':''}>Australia</option>
+            <option value="sgp" ${n.region==='sgp'?'selected':''}>Singapore</option>
+            <option value="jpn" ${n.region==='jpn'?'selected':''}>Japan</option>
+            <option value="apac" ${n.region==='apac'?'selected':''}>Asia Pacific</option>
+          </select>
+        </div>
+        <div class="sf"><div class="sl">Category</div>
+          <select class="si" onchange="spUp('cat',this.value)">
+            <option value="class" ${n.cat==='class'?'selected':''}>Classification</option>
+            <option value="reg" ${n.cat==='reg'?'selected':''}>Regulators</option>
+            <option value="def" ${n.cat==='def'?'selected':''}>Defence</option>
+            <option value="res" ${n.cat==='res'?'selected':''}>Research</option>
+            <option value="ind" ${n.cat==='ind'?'selected':''}>Industry</option>
+            <option value="test" ${n.cat==='test'?'selected':''}>Test & Ops</option>
+            <option value="imo" ${n.cat==='imo'?'selected':''}>IMO / Intl</option>
+          </select>
+        </div>
+      </div>
+      <div class="sr2">
+        <div class="sf"><div class="sl">Node Type</div>
+          <select class="si" onchange="spUp('type',this.value)">
+            <option value="center" ${n.type==='center'?'selected':''}>Center</option>
+            <option value="region" ${n.type==='region'?'selected':''}>Region (L3)</option>
+            <option value="hub" ${n.type==='hub'?'selected':''}>Hub (L4)</option>
+            <option value="stakeholder" ${n.type==='stakeholder'?'selected':''}>Stakeholder (L5)</option>
+            <option value="initiative" ${n.type==='initiative'?'selected':''}>Initiative</option>
+            <option value="action" ${n.type==='action'?'selected':''}>Action (L6)</option>
+            <option value="placeholder" ${n.type==='placeholder'?'selected':''}>Placeholder</option>
+          </select>
+        </div>
+        <div class="sf"><div class="sl">Status</div>
+          <select class="si" onchange="spUp('status',this.value)">
+            <option value="ns" ${n.status==='ns'?'selected':''}>Not Started</option>
+            <option value="ip" ${n.status==='ip'?'selected':''}>In Progress</option>
+            <option value="bl" ${n.status==='bl'?'selected':''}>Blocked</option>
+            <option value="dn" ${n.status==='dn'?'selected':''}>Done</option>
+          </select>
+        </div>
+      </div>
+      <div class="sr2">
+        <div class="sf"><div class="sl">Priority</div>
+          <select class="si" onchange="spUp('priority',this.value)">
+            <option value="h" ${n.priority==='h'?'selected':''}>High</option>
+            <option value="m" ${n.priority==='m'?'selected':''}>Medium</option>
+            <option value="l" ${n.priority==='l'?'selected':''}>Low</option>
+          </select>
+        </div>
+        <div class="sf"><div class="sl">Owner</div><input class="si" value="${esc(n.owner)}" oninput="spUp('owner',this.value)" placeholder="Name"/></div>
+      </div>
+      <div class="sf"><div class="sl">Initiative</div><input class="si" value="${esc(n.initiative)}" oninput="spUp('initiative',this.value)" placeholder="Initiative name"/></div>
+      <div class="sf"><div class="sl">Last Updated</div><input class="si" type="date" value="${n.lastUpdated||''}" oninput="spUp('lastUpdated',this.value)"/></div>
+    </div>
+    <div class="sps"><div class="sps-title">Detail</div>
+      <div class="sf"><div class="sl">Role in Ecosystem</div><textarea class="si" rows="2" oninput="spUp('role',this.value)">${esc(n.role)}</textarea></div>
+      <div class="sf"><div class="sl">Engagement with Saronic</div><textarea class="si" rows="2" oninput="spUp('engagement',this.value)">${esc(n.engagement)}</textarea></div>
+      <div class="sf"><div class="sl">Autonomy / Cert Relevance</div><textarea class="si" rows="2" oninput="spUp('relevance',this.value)">${esc(n.relevance)}</textarea></div>
+      <div class="sf"><div class="sl">Notes</div><textarea class="si" rows="2" oninput="spUp('notes',this.value)">${esc(n.notes)}</textarea></div>
+    </div>
+    <div class="sps" id="sp-acts"><div class="sps-title">Actions (${acts.length}) <button onclick="quickAction('${n.id}')">+ Add</button></div>
+      ${actsHtml||'<div style="font-size:11px;color:var(--text3)">No actions yet.</div>'}
+    </div>
+    <div class="sps"><div class="sps-title">Connected (${connected.length})</div>
+      ${connHtml||'<div style="font-size:11px;color:var(--text3)">No connections.</div>'}
+    </div>
+    <div class="sps"><div class="sps-title">Node Actions</div>
+      <button class="spb prim sm" onclick="dupeNode('${n.id}')">⧉ Duplicate</button>
+      <button class="spb sec sm" onclick="startConnect('${n.id}',null)">⟳ Connect</button>
+      <button class="spb sec sm" onclick="toggleCollapse('${n.id}')">⊟ Collapse/Expand</button>
+      <button class="spb dan sm" onclick="deleteNode('${n.id}')">✕ Delete</button>
+    </div>`;
+}
+
+function spUp(field,val){
+  if(!spNodeId) return;
+  const n=NODES[spNodeId];if(!n)return;
+  n[field]=val; n.lastUpdated=today();
+  if(field==='title'){
+    document.getElementById('sp-title').textContent=val;
+    const el=document.querySelector('#nd-'+spNodeId+' .ntitle');
+    if(el) el.textContent=val;
+    updateMM();
+  }
+  if(field==='subtitle'){
+    const el=document.querySelector('#nd-'+spNodeId+' .nsub');
+    if(el) el.textContent=val;
+  }
+  if(['cat','status','priority','initiative','type'].includes(field)){
+    renderNode(n); refreshEdges(); updateMM();
+  }
+  autoSave();
+}
+
+function toggleActFromPanel(aid){
+  const a=ACTIONS[aid];if(!a)return;
+  a.done=!a.done; a.status=a.done?'dn':'ns';
+  if(a.nodeId&&NODES[a.nodeId]){NODES[a.nodeId].done=a.done;NODES[a.nodeId].status=a.status;renderNode(NODES[a.nodeId]);}
+  if(a.parentId&&NODES[a.parentId]) renderNode(NODES[a.parentId]);
+  updateSP(spNodeId); autoSave();
+}
+
+// ─── ACTION MODAL ───
+function openAM(aid){
+  editActionId=aid;const a=ACTIONS[aid];if(!a)return;
+  document.getElementById('am-title').value=a.title||'';
+  document.getElementById('am-desc').value=a.desc||'';
+  document.getElementById('am-owner').value=a.owner||'';
+  document.getElementById('am-due').value=a.due||'';
+  document.getElementById('am-status').value=a.status||'ns';
+  document.getElementById('am-prio').value=a.priority||'m';
+  document.getElementById('am-init').value=a.initiative||'';
+  document.getElementById('am-notes').value=a.notes||'';
+  document.getElementById('action-modal').classList.add('open');
+}
+function closeAM(){document.getElementById('action-modal').classList.remove('open');editActionId=null;}
+function saveAM(){
+  if(!editActionId)return;const a=ACTIONS[editActionId];if(!a)return;
+  pushUndo();
+  a.title=document.getElementById('am-title').value.trim();
+  a.desc=document.getElementById('am-desc').value.trim();
+  a.owner=document.getElementById('am-owner').value.trim();
+  a.due=document.getElementById('am-due').value;
+  a.status=document.getElementById('am-status').value;
+  a.priority=document.getElementById('am-prio').value;
+  a.initiative=document.getElementById('am-init').value.trim();
+  a.notes=document.getElementById('am-notes').value.trim();
+  a.done=a.status==='dn';
+  if(a.nodeId&&NODES[a.nodeId]){
+    const an=NODES[a.nodeId];
+    an.title=a.title;
+    an.subtitle=(a.owner?`Owner: ${a.owner}  `:'')+( a.due?`Due: ${a.due}`:'');
+    an.status=a.status;an.priority=a.priority;an.initiative=a.initiative;an.done=a.done;
+    renderNode(an);
+  }
+  if(a.parentId&&NODES[a.parentId]) renderNode(NODES[a.parentId]);
+  closeAM(); if(spNodeId) updateSP(spNodeId); autoSave(); toast('Action saved');
+}
+function deleteAM(){
+  if(!editActionId)return;
+  const a=ACTIONS[editActionId];
+  if(a&&a.nodeId&&NODES[a.nodeId]) deleteNode(a.nodeId);
+  delete ACTIONS[editActionId];
+  closeAM(); if(spNodeId) updateSP(spNodeId); autoSave(); toast('Action deleted');
+}
+
+// ─── SEARCH ───
+function toggleSearch(){
+  const s=document.getElementById('search-bar');
+  s.classList.contains('open')?closeSearch():(s.classList.add('open'),document.getElementById('search-inp').focus());
+}
+function closeSearch(){
+  document.getElementById('search-bar').classList.remove('open');
+  document.getElementById('search-res').classList.remove('open');
+  document.getElementById('search-inp').value='';
+  doSearch('');
+}
+function doSearch(q){
+  document.querySelectorAll('.node').forEach(el=>el.classList.remove('search-hi'));
+  const sr=document.getElementById('search-res');
+  if(!q){sr.classList.remove('open');return;}
+  const results=[];
+  Object.values(NODES).forEach(n=>{
+    const hay=[n.title,n.subtitle,n.role,n.engagement,n.relevance,n.notes,n.initiative,n.owner].join(' ').toLowerCase();
+    if(hay.includes(q.toLowerCase())) results.push({type:'node',id:n.id,title:n.title,sub:n.subtitle||n.type,nt:n.type});
+  });
+  Object.values(ACTIONS).forEach(a=>{
+    const hay=[a.title,a.desc,a.owner,a.notes,a.initiative].join(' ').toLowerCase();
+    if(hay.includes(q.toLowerCase())){
+      const pn=NODES[a.parentId];
+      results.push({type:'action',id:a.id,title:a.title,sub:pn?`Action on: ${pn.title}`:'Action',nt:'action'});
+    }
+  });
+  results.forEach(r=>{if(r.type==='node') document.getElementById('nd-'+r.id)?.classList.add('search-hi');});
+  sr.innerHTML=results.slice(0,20).map(r=>`
+    <div class="sr-item" onclick="focusResult('${r.type}','${r.id}')">
+      <div style="flex:1"><div style="font-size:12px;color:var(--text);font-weight:500">${esc(r.title)}</div>
+        <div style="font-size:10.5px;color:var(--text3);font-family:var(--mono)">${esc(r.sub)}</div></div>
+      <span style="font-size:10px;padding:1px 6px;border-radius:99px;border:1px solid var(--border2);color:var(--text3);font-family:var(--mono)">${r.nt}</span>
+    </div>`).join('')||'<div style="padding:12px;font-size:12px;color:var(--text3)">No results</div>';
+  sr.classList.add('open');
+  if(results.length&&results[0].type==='node') focusNode(results[0].id);
+}
+function focusResult(type,id){
+  if(type==='node'){focusNode(id);openSP(id);}
+  else{const a=ACTIONS[id];if(a&&a.parentId){focusNode(a.parentId);openSP(a.parentId);}openAM(id);}
+  closeSearch();
+}
+function focusNode(id){
+  const n=NODES[id];if(!n)return;
+  const el=document.getElementById('nd-'+id);
+  const w=el?el.offsetWidth:180,h=el?el.offsetHeight:80;
+  const W=window.innerWidth,H=window.innerHeight;
+  pan.x=W/2-(n.x+w/2)*zoom; pan.y=H/2-(n.y+h/2)*zoom;
+  applyXform();
+}
+
+// ─── FILTERS ───
+function applyFilters(){
+  const fR=document.getElementById('f-region').value;
+  const fC=document.getElementById('f-cat').value;
+  const fS=document.getElementById('f-status').value;
+  const fO=document.getElementById('f-owner').value.toLowerCase();
+  const fI=document.getElementById('f-init').value.toLowerCase();
+  const fOA=document.getElementById('f-open-acts').checked;
+  const fD=document.getElementById('f-done').checked;
+  const hasF=fR||fC||fS||fO||fI||fOA||fD;
+  Object.values(NODES).forEach(n=>{
+    let show=true;
+    if(fR&&n.region!==fR) show=false;
+    if(fC&&n.cat!==fC) show=false;
+    if(fS&&n.status!==fS) show=false;
+    if(fO&&!(n.owner||'').toLowerCase().includes(fO)) show=false;
+    if(fI&&!(n.initiative||'').toLowerCase().includes(fI)) show=false;
+    if(fOA&&getOpenActions(n.id).length===0&&n.type!=='action') show=false;
+    if(fD&&n.type==='action'&&!n.done) show=false;
+    const el=document.getElementById('nd-'+n.id);
+    if(el) el.classList.toggle('filtered-out',!show);
+  });
+  const pill=document.getElementById('sb-filt');
+  if(pill){pill.style.display=hasF?'':'none';pill.classList.toggle('fa',!!hasF);}
+  updateSB();
+}
+function clearFilters(){
+  ['f-region','f-cat','f-status'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-owner','f-init'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-open-acts','f-done'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  Object.values(NODES).forEach(n=>document.getElementById('nd-'+n.id)?.classList.remove('filtered-out'));
+  const pill=document.getElementById('sb-filt');
+  if(pill){pill.style.display='none';pill.classList.remove('fa');}
+  updateSB(); toast('Filters cleared');
+}
+
+// ─── MINIMAP ───
+function updateMM(){
+  const mc=document.getElementById('mm-c');
+  const ctx=mc.getContext('2d');
+  const mw=mc.width,mh=mc.height;
+  ctx.clearRect(0,0,mw,mh);
+  const ns=Object.values(NODES);
+  if(!ns.length) return;
+  let mn={x:Infinity,y:Infinity},mx2={x:-Infinity,y:-Infinity};
+  ns.forEach(n=>{
+    const el=document.getElementById('nd-'+n.id);
+    const w=el?el.offsetWidth:180,h=el?el.offsetHeight:80;
+    mn.x=Math.min(mn.x,n.x);mn.y=Math.min(mn.y,n.y);
+    mx2.x=Math.max(mx2.x,n.x+w);mx2.y=Math.max(mx2.y,n.y+h);
+  });
+  const pad=150,rngX=mx2.x-mn.x+pad*2,rngY=mx2.y-mn.y+pad*2;
+  const s=Math.min(mw/rngX,mh/rngY);
+  const ox=(mw-rngX*s)/2-mn.x*s+pad*s,oy=(mh-rngY*s)/2-mn.y*s+pad*s;
+  // Edges
+  EDGES.forEach(e=>{
+    const fn=NODES[e.from],tn=NODES[e.to];if(!fn||!tn)return;
+    const fc=getCat(fn);
+    ctx.strokeStyle=fc.stroke+'55';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(fn.x*s+ox,fn.y*s+oy);ctx.lineTo(tn.x*s+ox,tn.y*s+oy);ctx.stroke();
+  });
+  // Nodes
+  ns.forEach(n=>{
+    const el=document.getElementById('nd-'+n.id);
+    const nw=(el?el.offsetWidth:180)*s,nh=(el?el.offsetHeight:60)*s;
+    const cat=getCat(n);
+    ctx.fillStyle=cat.stroke+'90';
+    const r=Math.min(nw*0.3,4);
+    ctx.beginPath();ctx.roundRect(n.x*s+ox,n.y*s+oy,Math.max(nw,4),Math.max(nh,3),r);ctx.fill();
+  });
+  // Viewport
+  const vp=document.getElementById('mm-vp');
+  const W=window.innerWidth,H=window.innerHeight;
+  const vx=(-pan.x/zoom)*s+ox,vy=(-pan.y/zoom)*s+oy;
+  const vw=(W/zoom)*s,vh=(H/zoom)*s;
+  vp.style.cssText=`left:${vx}px;top:${vy}px;width:${vw}px;height:${vh}px`;
+}
+document.getElementById('minimap').addEventListener('click',e=>{
+  const mc=document.getElementById('mm-c');
+  const mr=mc.getBoundingClientRect();
+  const mw=mc.width,mh=mc.height;
+  const mx2=(e.clientX-mr.left)/mr.width*mw;
+  const my2=(e.clientY-mr.top)/mr.height*mh;
+  let mn={x:Infinity,y:Infinity},mxv={x:-Infinity,y:-Infinity};
+  Object.values(NODES).forEach(n=>{mn.x=Math.min(mn.x,n.x);mn.y=Math.min(mn.y,n.y);mxv.x=Math.max(mxv.x,n.x+180);mxv.y=Math.max(mxv.y,n.y+80);});
+  const pad=150,rngX=mxv.x-mn.x+pad*2,rngY=mxv.y-mn.y+pad*2;
+  const s=Math.min(mw/rngX,mh/rngY);
+  const ox=(mw-rngX*s)/2-mn.x*s+pad*s,oy=(mh-rngY*s)/2-mn.y*s+pad*s;
+  const cx=(mx2-ox)/s,cy=(my2-oy)/s;
+  const W=window.innerWidth,H=window.innerHeight;
+  pan.x=W/2-cx*zoom; pan.y=H/2-cy*zoom; applyXform();
+});
+
+// ─── STATUS BAR ───
+function updateSB(){
+  document.getElementById('sb-nodes').textContent=Object.keys(NODES).length+' nodes';
+  const openA=Object.values(ACTIONS).filter(a=>!a.done).length;
+  document.getElementById('sb-acts').textContent=openA+' open actions';
+}
+
+// ─── EXPORT / IMPORT ───
+function exportJSON(){
+  const data={NODES,EDGES,ACTIONS,INITIATIVES,exportedAt:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`saronic-map-${today()}.json`;a.click();
+  closeFP('export-panel');toast('Exported');
+}
+function importJSON(){document.getElementById('import-file').click();}
+function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      pushUndo();
+      const data=JSON.parse(ev.target.result);
+      NODES=data.NODES||{};EDGES=data.EDGES||[];
+      ACTIONS=data.ACTIONS||{};INITIATIVES=data.INITIATIVES||{};
+      rebuildAll();toast('Map imported');
+    }catch(err){toast('Import failed: invalid JSON');}
+  };
+  reader.readAsText(file);e.target.value='';
+}
+function saveLS(){
+  localStorage.setItem('saronic-map-v3',JSON.stringify({NODES,EDGES,ACTIONS,INITIATIVES}));
+  closeFP('export-panel');toast('Saved to browser');
+}
+function loadLS(){
+  const raw=localStorage.getItem('saronic-map-v3');
+  if(!raw){toast('No saved map found');return;}
+  try{
+    pushUndo();const data=JSON.parse(raw);
+    NODES=data.NODES||{};EDGES=data.EDGES||[];
+    ACTIONS=data.ACTIONS||{};INITIATIVES=data.INITIATIVES||{};
+    rebuildAll();closeFP('export-panel');toast('Loaded from browser');
+  }catch(e){toast('Failed to load');}
+}
+let _saveTimer;
+function autoSave(){clearTimeout(_saveTimer);_saveTimer=setTimeout(saveLS,1500);}
+
+// ─── HELP / TOAST ───
+function toggleHelp(){document.getElementById('help-modal').classList.toggle('open');}
+function toast(msg){
+  const w=document.getElementById('toast-w');
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  w.appendChild(t);setTimeout(()=>t.remove(),2900);
+}
+
+window.addEventListener('resize',()=>{refreshEdges();updateMM();});
+
+// ═══════════════════════════════════════════════════════════
+// INITIAL DATA
+// ═══════════════════════════════════════════════════════════
+function loadInitialData(){
+  function sn(o){const n=mkNode(o);NODES[n.id]=n;return n.id;}
+  function se(a,b,t='default'){return addEdge(a,b,t);}
+
+  // ── CENTER ──
+  const CID='center-main';
+  NODES[CID]=mkNode({id:CID,type:'center',cat:'imo',
+    title:'Saronic Global Regulatory Environment',
+    subtitle:'Enable scalable autonomous maritime operations through alignment with international regulatory, classification, and certification frameworks, with IMO as the top-level global reference point.',
+    region:'global',x:4100,y:4050});
+
+  // ── IMO (Level 2 — dominant) ──
+  const IMO=sn({id:'imo-hub',type:'region',cat:'imo',region:'global',
+    title:'IMO',subtitle:'International Maritime Organization',x:4100,y:3380,
+    role:'Primary global regulatory body for international shipping.',
+    engagement:'Monitor MASS working groups; engage through classification society proxies.',
+    relevance:'IMO MASS framework is the top-level reference point for all regions.',priority:'h',status:'ip'});
+
+  const IMO_MASS=sn({type:'stakeholder',cat:'imo',region:'global',
+    title:'IMO MASS Rule Development',subtitle:'MASS goal-based instrument',
+    x:3300,y:3050,priority:'h',status:'ip',
+    role:'IMO developing goal-based instrument for MASS covering safety, COLREGS, STCW.',
+    engagement:'Track MSC sessions; engage through LR and flag state proxies.',
+    relevance:'Defines the global certification ceiling Saronic must design toward.'});
+  const IMO_CONV=sn({type:'stakeholder',cat:'imo',region:'global',
+    title:'International Conventions',subtitle:'SOLAS, COLREGS, MARPOL, STCW',
+    x:3680,y:2950,
+    role:'Core IMO conventions governing vessel safety, navigation, and crew.',
+    engagement:'Monitor revisions through class society guidance and MSC circulars.',
+    relevance:'Every autonomous operation must map to or deviate from these with regulatory justification.'});
+  const IMO_FLAG=sn({type:'stakeholder',cat:'imo',region:'global',
+    title:'Flag & Coastal State Implications',subtitle:'Jurisdictional compliance',
+    x:4180,y:2950,
+    role:'Flag states implement IMO conventions into national law.',
+    engagement:'Track UK, US, and Australian flag state implementation of MASS provisions.',
+    relevance:'Saronic vessels need flag-state-specific compliance strategies across regions.'});
+  const IMO_CLASS=sn({type:'stakeholder',cat:'imo',region:'global',
+    title:'Classification Society Interface',subtitle:'LR, DNV, ABS as IMO proxies',
+    x:4680,y:3050,priority:'h',status:'ip',
+    role:'Class societies participate in IMO working groups and translate rules into standards.',
+    engagement:'Engage LR (UK), ABS (US), DNV to stay ahead of MASS rule crystallization.',
+    relevance:'Class approval of Saronic USVs depends on MASS rule alignment with IMO.'});
+  const IMO_CERT=sn({type:'stakeholder',cat:'imo',region:'global',
+    title:'Global Certification Alignment',subtitle:'Cross-regional type approval',
+    x:5100,y:3180,priority:'h',status:'ns',initiative:'Global Certification Framework',
+    role:'Coordinating certification across class societies and flag states.',
+    engagement:'Develop common technical safety case reusable across UK, US, and Australian pathways.',
+    relevance:'Reduces duplication and builds a scalable autonomy certification framework.'});
+
+  se(CID,IMO);
+  se(IMO,IMO_MASS);se(IMO,IMO_CONV);se(IMO,IMO_FLAG);se(IMO,IMO_CLASS);se(IMO,IMO_CERT);
+
+  // ── UNITED KINGDOM (Level 3 — Region) ──
+  const UK=sn({id:'uk-region',type:'region',cat:'class',region:'uk',
+    title:'United Kingdom',subtitle:'UK Regulatory Efforts',x:3000,y:4000});
+  se(CID,UK);
+
+  const UK_H_CLASS=sn({type:'hub',cat:'class',region:'uk',title:'Classification & Assurance',x:2200,y:3650});
+  const UK_H_REG  =sn({type:'hub',cat:'reg',  region:'uk',title:'Regulators & Authorities',  x:2200,y:3900});
+  const UK_H_DEF  =sn({type:'hub',cat:'def',  region:'uk',title:'Defence & Government',       x:2200,y:4150});
+  const UK_H_RES  =sn({type:'hub',cat:'res',  region:'uk',title:'Research & Academia',        x:2600,y:4450});
+  const UK_H_IND  =sn({type:'hub',cat:'ind',  region:'uk',title:'Industry & Partners',        x:3000,y:4550});
+  const UK_H_TEST =sn({type:'hub',cat:'test', region:'uk',title:'Test & Operational Envs',    x:1950,y:4350});
+
+  se(UK,UK_H_CLASS);se(UK,UK_H_REG);se(UK,UK_H_DEF);
+  se(UK,UK_H_RES);se(UK,UK_H_IND);se(UK,UK_H_TEST);
+
+  // Classification
+  const LR  =sn({type:'stakeholder',cat:'class',region:'uk',title:"Lloyd's Register",subtitle:'Global classification society',x:1700,y:3380,priority:'h',status:'ip',initiative:'UK Classification Pathway',role:'Primary classification society for UK-flagged vessels.',engagement:'Primary classification pathway for Saronic USVs. AiP discussions and MASS technical rules.',relevance:'Core partner for type approval; participates in IMO MASS working groups.'});
+  const BMT =sn({type:'stakeholder',cat:'class',region:'uk',title:'BMT Group',subtitle:'Naval architecture & risk',x:1950,y:3320,priority:'m',status:'ns',role:'Naval architecture, maritime engineering, and operational risk advisory.',engagement:'Technical advisory support for hull, propulsion, and safety case development.',relevance:'Safety case development; HAZID/HAZOP for USV operations.'});
+  const UKHO=sn({type:'stakeholder',cat:'class',region:'uk',title:'UK Hydrographic Office',subtitle:'Admiralty charts & nav data',x:2200,y:3300,priority:'m',status:'ns',role:'Produces ADMIRALTY charts, bathymetric data, and maritime geospatial intelligence.',engagement:'Navigation data licensing for autonomy stack; ECDIS compatibility.',relevance:'Critical for assured autonomous navigation in UK and international waters.'});
+
+  se(UK_H_CLASS,LR);se(UK_H_CLASS,BMT);se(UK_H_CLASS,UKHO);
+
+  // Regulators
+  const MCA=sn({type:'stakeholder',cat:'reg',region:'uk',title:'Maritime & Coastguard Agency',subtitle:'UK flag state authority',x:1680,y:3720,priority:'h',status:'ip',role:'UK flag state authority; oversees vessel safety, certification, and seafarer licensing.',engagement:'Regulatory engagement for MASS operations in UK territorial waters; trial permission pathways.',relevance:'Issues MASS certificates; defines regulatory framework for unmanned vessels.'});
+  const NSO=sn({type:'stakeholder',cat:'reg',region:'uk',title:'National Shipbuilding Office',subtitle:'UK shipbuilding strategy',x:1950,y:3780,priority:'m',status:'ns',role:'Government body driving UK national shipbuilding strategy.',engagement:'Strategic alignment on UK sovereign shipbuilding and defence capability.',relevance:'Relevant to UK production commitments and fleet procurement conversations.'});
+  const IUK=sn({type:'stakeholder',cat:'reg',region:'uk',title:'Innovate UK',subtitle:'R&D funding body (UKRI)',x:2180,y:3840,priority:'m',status:'ns',role:'UKRI funding arm for business-led innovation.',engagement:'Potential co-funding for USV autonomy R&D partnerships.',relevance:'Non-dilutive R&D funding; strengthens UK government stakeholder engagement.'});
+
+  se(UK_H_REG,MCA);se(UK_H_REG,NSO);se(UK_H_REG,IUK);
+
+  // Defence
+  const RN  =sn({type:'stakeholder',cat:'def',region:'uk',title:'Royal Navy',subtitle:'End-user & requirements owner',x:1680,y:4000,priority:'h',status:'ip',initiative:'Royal Navy Engagement',role:'Primary UK naval force; end-user for autonomous surface vessels.',engagement:'Customer and requirements owner for USV programmes — MCM, PROTECTOR, ISR.',relevance:'Operational concept development, at-sea trials, fleet integration.'});
+  const MOD =sn({type:'stakeholder',cat:'def',region:'uk',title:'Ministry of Defence',subtitle:'Acquisition & policy authority',x:1880,y:4080,priority:'h',status:'ip',role:'UK defence acquisition authority; owns strategic autonomy investment decisions.',engagement:'Defence procurement engagement through DE&S and Future Capability Group.',relevance:'Governs DEFCON standards, export licensing, and UK autonomy policy.'});
+  const UKNA=sn({type:'stakeholder',cat:'def',region:'uk',title:'UK Naval Authority',subtitle:'Naval Safety Office',x:2080,y:4160,priority:'h',status:'ns',role:'Ensures naval platforms meet safety standards for RN service.',engagement:'Military certification pathway for all RN-operated autonomous vessels.',relevance:'Issues Platform Safety Cases; essential for any RN programme entry.'});
+  const DSTL=sn({type:'stakeholder',cat:'def',region:'uk',title:'Dstl',subtitle:'Defence Science & Technology Lab',x:2280,y:4220,priority:'m',status:'ns',role:"MoD's internal science and technology laboratory.",engagement:'Research collaboration on autonomy algorithms, human-machine teaming.',relevance:'AI certification, assured autonomy frameworks, and MOD technology readiness.'});
+
+  se(UK_H_DEF,RN);se(UK_H_DEF,MOD);se(UK_H_DEF,UKNA);se(UK_H_DEF,DSTL);
+
+  // Research
+  const ATI   =sn({type:'stakeholder',cat:'res',region:'uk',title:'Alan Turing Institute',subtitle:'UK national AI institute',x:2350,y:4500,priority:'m',status:'ns',role:'National institute for AI; conducts foundational and applied AI research.',engagement:'Potential research partnership on trustworthy AI and sensor fusion.',relevance:'AI certification evidence; intellectual credibility for autonomy stack.'});
+  const YORK  =sn({type:'stakeholder',cat:'res',region:'uk',title:'University of York',subtitle:'Safety-critical systems & autonomy',x:2600,y:4580,priority:'m',status:'ns',role:'Leading UK university in safety assurance and autonomous systems.',engagement:'Academic partner for safety cases and assurance methodologies.',relevance:'SSARG/HICLASS work applies directly to MASS safety frameworks.'});
+  const MARIUK=sn({type:'stakeholder',cat:'res',region:'uk',title:'Maritime UK',subtitle:'Industry trade coalition',x:2850,y:4630,priority:'l',status:'ns',role:'Industry coalition representing UK maritime sector.',engagement:'Trade body engagement; positioning within UK maritime ecosystem.',relevance:'Policy influence on UK MASS regulations; cross-sector network access.'});
+
+  se(UK_H_RES,ATI);se(UK_H_RES,YORK);se(UK_H_RES,MARIUK);
+
+  // Industry
+  const CAAT   =sn({type:'stakeholder',cat:'ind',region:'uk',title:'CAAT',subtitle:'Arms trade risk awareness',x:2900,y:4720,priority:'l',status:'ns',role:'UK civil society monitoring defence exports.',engagement:'Not a partner; relevant for public affairs risk mapping.',relevance:'Autonomous weapons narrative; export licensing awareness.'});
+  const UKMARI =sn({type:'stakeholder',cat:'ind',region:'uk',title:'UK Maritime Industry',subtitle:'Shipyards, OEMs, integrators',x:3100,y:4770,priority:'m',status:'ns',role:'Shipyards, OEMs, and systems integrators in UK maritime defence.',engagement:'Potential integration partners — Babcock, BAE Maritime, Thales UK.',relevance:'Local content requirements often mandate in-country partnerships.'});
+  const QINEQ_I=sn({type:'stakeholder',cat:'ind',region:'uk',title:'QinetiQ / Subsea7',subtitle:'UXV integration & engineering',x:3350,y:4720,priority:'m',status:'ns',role:'QinetiQ: defence tech. Subsea7: offshore engineering.',engagement:'Integration and operational testing partners for Saronic USVs.',relevance:'QinetiQ operates test ranges; Subsea7 for offshore mission profiles.'});
+  const DSEI   =sn({type:'stakeholder',cat:'ind',region:'uk',title:'DSEI / MAST',subtitle:'Defence & maritime exhibitions',x:3200,y:4650,priority:'l',status:'ns',role:'Major international defence exhibitions in UK.',engagement:'Key venues for stakeholder engagement and demonstration.',relevance:'Showcasing USV capability; building RN, MoD, allied navy relationships.'});
+
+  se(UK_H_IND,CAAT);se(UK_H_IND,UKMARI);se(UK_H_IND,QINEQ_I);se(UK_H_IND,DSEI);
+
+  // Test
+  const PLA  =sn({type:'stakeholder',cat:'test',region:'uk',title:'Port of London Authority',subtitle:'Tidal Thames authority',x:1700,y:4380,priority:'m',status:'ns',role:'Statutory authority for the tidal Thames.',engagement:'Permitting and waterway access for USV trials.',relevance:'High-profile demonstration environment; UK credibility trials.'});
+  const QTEST=sn({type:'stakeholder',cat:'test',region:'uk',title:'QinetiQ BUTEC / UKAT',subtitle:'Offshore test ranges (Scotland)',x:1900,y:4480,priority:'m',status:'ns',role:'UK offshore range facilities in Scottish waters.',engagement:'Controlled maritime test environment for hull, sensor, and autonomy validation.',relevance:'MoD-recognised test infrastructure; results carry weight in certification.'});
+
+  se(UK_H_TEST,PLA);se(UK_H_TEST,QTEST);
+
+  // ── UNITED STATES (Level 3 — Region) ──
+  const US=sn({id:'us-region',type:'region',cat:'reg',region:'us',
+    title:'United States',subtitle:'US Regulatory Efforts',x:5200,y:4000});
+  se(CID,US);
+
+  const US_H_CLASS=sn({type:'hub',cat:'class',region:'us',title:'Classification & Assurance',x:5700,y:3650});
+  const US_H_REG  =sn({type:'hub',cat:'reg',  region:'us',title:'Regulators & Authorities',  x:6000,y:3850});
+  const US_H_DEF  =sn({type:'hub',cat:'def',  region:'us',title:'Defence & Government',       x:5950,y:4100});
+  const US_H_TEST =sn({type:'hub',cat:'test', region:'us',title:'Test Environments',           x:5650,y:4350});
+  const US_H_IND  =sn({type:'hub',cat:'ind',  region:'us',title:'Industry & Partners',         x:5350,y:4450});
+
+  se(US,US_H_CLASS);se(US,US_H_REG);se(US,US_H_DEF);se(US,US_H_TEST);se(US,US_H_IND);
+
+  const ABS   =sn({type:'stakeholder',cat:'class',region:'us',title:'American Bureau of Shipping',subtitle:'Primary US classification society',x:5650,y:3380,priority:'h',status:'ns',initiative:'US Classification Pathway',role:'Leading US classification society; sets technical standards including autonomous systems.',engagement:'Primary US classification pathway for Saronic. ABS Guide for Autonomous/Remote-Control engagement.',relevance:'ABS Rules for Autonomous Systems are the primary US technical reference for MASS certification.'});
+  const DNV_US=sn({type:'stakeholder',cat:'class',region:'us',title:'DNV (US Operations)',subtitle:'International class with US presence',x:5950,y:3300,priority:'m',status:'ns',role:'Norwegian-headquartered class society with significant US naval and offshore presence.',engagement:'Potential dual-track classification alongside ABS for NATO interoperability.',relevance:'DNV participates in IMO MASS working groups; valuable for international alignment.'});
+
+  se(US_H_CLASS,ABS);se(US_H_CLASS,DNV_US);
+
+  const USCG =sn({type:'stakeholder',cat:'reg',region:'us',title:'US Coast Guard',subtitle:'Federal maritime safety authority',x:5950,y:3620,priority:'h',status:'ns',role:'Primary federal agency for US maritime safety and security.',engagement:'Regulatory engagement for MASS operations in US waters; NVIC and policy letter navigation.',relevance:'USCG must approve operations in US territorial waters; MASS policy still developing.'});
+  const MARAD=sn({type:'stakeholder',cat:'reg',region:'us',title:'MARAD',subtitle:'Maritime Administration (DOT)',x:6180,y:3720,priority:'m',status:'ns',role:'US DOT agency promoting the US maritime industry.',engagement:'Engage on US shipbuilding requirements and Jones Act applicability.',relevance:'Jones Act compliance and waiver authority relevant to domestic USV operations.'});
+  const NIST =sn({type:'stakeholder',cat:'reg',region:'us',title:'NIST / Standards Bodies',subtitle:'Technical standards frameworks',x:6380,y:3850,priority:'l',status:'ns',role:'Develops technical standards relevant to autonomous systems.',engagement:'Monitor AI risk management frameworks applicable to maritime autonomy.',relevance:'NIST AI RMF may inform autonomy certification standards.'});
+
+  se(US_H_REG,USCG);se(US_H_REG,MARAD);se(US_H_REG,NIST);
+
+  const USN  =sn({type:'stakeholder',cat:'def',region:'us',title:'US Navy / PEO Unmanned',subtitle:'Naval end-user & requirements',x:5950,y:3900,priority:'h',status:'ns',initiative:'US Navy Engagement',role:'US Navy primary end-user of autonomous surface and underwater vessels.',engagement:'BD engagement; track MUSV, LUSV, and XLUUV programmes.',relevance:'US Navy is the world largest autonomous maritime customer; key strategic relationship.'});
+  const DOD  =sn({type:'stakeholder',cat:'def',region:'us',title:'DoD / USD(R&E)',subtitle:'Defense policy & acquisition',x:6200,y:4000,priority:'h',status:'ns',role:'Department of Defense; USD(R&E) leads emerging technology and autonomous systems policy.',engagement:'Engage through defence primes; track DoD autonomy strategy and JADC2 integration.',relevance:'DoD autonomous weapons policy and export control (ITAR/EAR) shapes all US engagements.'});
+  const DARPA=sn({type:'stakeholder',cat:'def',region:'us',title:'DARPA / ONR',subtitle:'Research & advanced programmes',x:6380,y:4150,priority:'m',status:'ns',role:'DARPA and ONR fund autonomous maritime R&D.',engagement:'Monitor programme opportunities; track Sea Hunter legacy and follow-on USV initiatives.',relevance:'ONR funds autonomy technology with clear naval application; potential SBIR/STTR opportunities.'});
+
+  se(US_H_DEF,USN);se(US_H_DEF,DOD);se(US_H_DEF,DARPA);
+
+  const AUTEC     =sn({type:'stakeholder',cat:'test',region:'us',title:'AUTEC / BSURE',subtitle:'Atlantic test ranges',x:5650,y:4230,priority:'m',status:'ns',role:'US Navy Atlantic test range in the Bahamas.',engagement:'Potential test environment for autonomous maritime systems validation.',relevance:'DoD-recognised infrastructure for autonomous systems performance verification.'});
+  const PAC_RANGE =sn({type:'stakeholder',cat:'test',region:'us',title:'Pacific Test Ranges',subtitle:'Point Mugu / San Clemente',x:5880,y:4350,priority:'l',status:'ns',role:'US Navy Pacific test ranges used for unmanned system evaluation.',engagement:'Track availability for autonomous surface vessel trials.',relevance:'West Coast test infrastructure for Pacific operational profile development.'});
+
+  se(US_H_TEST,AUTEC);se(US_H_TEST,PAC_RANGE);
+
+  const L3H     =sn({type:'stakeholder',cat:'ind',region:'us',title:'L3Harris / Textron',subtitle:'US autonomous system integrators',x:5350,y:4350,priority:'m',status:'ns',role:'Major US defence primes with autonomous maritime systems capabilities.',engagement:'Monitor as potential partners or competitors; track teaming opportunities.',relevance:'Prime relationships with USN critical for programme access.'});
+  const ECO_US  =sn({type:'stakeholder',cat:'ind',region:'us',title:'US Maritime Tech Ecosystem',subtitle:'Anduril, Shield AI, Saildrone',x:5550,y:4480,priority:'m',status:'ns',role:'Growing US autonomous maritime technology ecosystem.',engagement:'Competitive intelligence; track SBIR awards and OTA contracts.',relevance:'Competitive landscape; potential for teaming or differentiation strategy.'});
+
+  se(US_H_IND,L3H);se(US_H_IND,ECO_US);
+
+  // ── AUSTRALIA & ASIA (Level 3 — Region) ──
+  const APAC=sn({id:'apac-region',type:'region',cat:'reg',region:'apac',
+    title:'Australia & Asia',subtitle:'Regional Regulatory Efforts',x:4100,y:4800});
+  se(CID,APAC);
+
+  // Australia
+  const AUS_HUB=sn({type:'hub',cat:'def',region:'aus',title:'Australia',x:3700,y:5100});
+  se(APAC,AUS_HUB);
+  const AMSA     =sn({type:'stakeholder',cat:'reg',region:'aus',title:'AMSA',subtitle:'Australian Maritime Safety Authority',x:3350,y:5300,priority:'h',status:'ns',role:"Australia's national maritime safety regulator.",engagement:"Initial engagement to map AMSA's emerging MASS regulatory framework.",relevance:'Primary regulatory approval authority for autonomous vessel operations in Australian waters.'});
+  const AUSN     =sn({type:'stakeholder',cat:'def',region:'aus',title:'Royal Australian Navy',subtitle:'Defence end-user',x:3600,y:5380,priority:'h',status:'ns',initiative:'AUKUS Autonomous Maritime',role:'Primary Australian defence end-user for autonomous maritime systems.',engagement:'Engage through AUKUS Pillar II technology sharing arrangements.',relevance:'AUKUS creates pathway for technology transfer and operational alignment.'});
+  const CASG     =sn({type:'stakeholder',cat:'def',region:'aus',title:'CASG / DST Group',subtitle:'Capability Acquisition & Science',x:3880,y:5420,priority:'m',status:'ns',role:'CASG manages defence acquisition; DST Group is Australian defence science.',engagement:'Track Ghost Shark and autonomous systems programme opportunities.',relevance:'DST Group autonomy research relevant to certification evidence requirements.'});
+  const LR_AUS  =sn({type:'stakeholder',cat:'class',region:'aus',title:"Lloyd's Register (APAC)",subtitle:'Classification in Australian waters',x:3200,y:5200,priority:'m',status:'ns',role:'LR provides classification services in Australia and Asia Pacific.',engagement:"Leverage existing LR UK relationship to extend MASS approval into Australian waters.",relevance:'Cross-regional class approval reduces duplication; leverages UK certification work.'});
+  const AUS_PH  =sn({type:'placeholder',cat:'ind',region:'aus',title:'Australian Maritime Industry',subtitle:'Placeholder — to be developed',x:4100,y:5400,priority:'l'});
+
+  se(AUS_HUB,AMSA);se(AUS_HUB,AUSN);se(AUS_HUB,CASG);se(AUS_HUB,LR_AUS);se(AUS_HUB,AUS_PH);
+
+  // Singapore
+  const SGP_HUB=sn({type:'hub',cat:'reg',region:'sgp',title:'Singapore',x:4400,y:5100});
+  se(APAC,SGP_HUB);
+  const MPA    =sn({type:'stakeholder',cat:'reg',region:'sgp',title:'Maritime Port Authority',subtitle:'Singapore maritime regulator',x:4200,y:5320,priority:'m',status:'ns',role:"Singapore's maritime regulator and leading port authority.",engagement:"Monitor Singapore's MASS regulatory framework; engage through class societies.",relevance:'Singapore is the world busiest transshipment hub; certification there confers global credibility.'});
+  const SMI    =sn({type:'stakeholder',cat:'ind',region:'sgp',title:'Singapore Maritime Institute',subtitle:'R&D and innovation hub',x:4450,y:5400,priority:'l',status:'ns',role:'SMI promotes maritime R&D in Singapore.',engagement:"Explore demonstration opportunities at Singapore's MARCS test facility.",relevance:'Singapore as APAC technology gateway; trial results transferable across region.'});
+  const SGP_PH =sn({type:'placeholder',cat:'ind',region:'sgp',title:'Singapore Industry Partners',subtitle:'Placeholder — to be developed',x:4650,y:5320});
+
+  se(SGP_HUB,MPA);se(SGP_HUB,SMI);se(SGP_HUB,SGP_PH);
+
+  // Japan
+  const JPN_HUB=sn({type:'hub',cat:'res',region:'jpn',title:'Japan',x:4900,y:5100});
+  se(APAC,JPN_HUB);
+  const CLASSNK=sn({type:'stakeholder',cat:'class',region:'jpn',title:'ClassNK',subtitle:'Japanese classification society',x:4750,y:5320,priority:'m',status:'ns',role:"Nippon Kaiji Kyokai (ClassNK) is Japan's primary classification society.",engagement:'Monitor ClassNK MASS guidelines; explore alignment with Saronic technical approach.',relevance:'ClassNK proactive MASS framework makes Japan an important regulatory benchmark.'});
+  const MLIT   =sn({type:'stakeholder',cat:'reg',region:'jpn',title:'Japan MLIT / JCG',subtitle:'Ministry of Land, Infrastructure, Transport',x:4980,y:5420,priority:'l',status:'ns',role:'MLIT oversees Japanese maritime policy; JCG enforces maritime safety.',engagement:'Monitor Sousei no Umi (Japan MASS project) and regulatory developments.',relevance:'Japan is a first-mover on MASS regulations; approaches relevant to broader APAC alignment.'});
+  const JPN_PH =sn({type:'placeholder',cat:'ind',region:'jpn',title:'Japan Industry / NEDO',subtitle:'Placeholder — to be developed',x:5200,y:5320});
+
+  se(JPN_HUB,CLASSNK);se(JPN_HUB,MLIT);se(JPN_HUB,JPN_PH);
+
+  // Other APAC
+  const APAC_PH=sn({type:'placeholder',cat:'ind',region:'apac',title:'Other APAC Markets',subtitle:'South Korea, India, NZ — to be developed',x:4600,y:5200,priority:'l'});
+  se(APAC,APAC_PH);
+
+  // ── CROSS-REGIONAL INITIATIVE ──
+  const INIT_AUKUS=sn({type:'initiative',cat:'init',region:'global',
+    title:'AUKUS Pillar II — Autonomous Maritime',
+    subtitle:'Trilateral technology sharing framework',
+    x:4600,y:3750,initiative:'AUKUS Autonomous Maritime',
+    role:'AUKUS Pillar II enables technology sharing between Australia, UK, and US.',
+    engagement:'Track UK/US/AUS defence AUKUS working groups; align product roadmap with Pillar II priorities.',
+    relevance:'AUKUS creates regulatory and procurement pathway across all three primary Saronic markets.',
+    priority:'h',status:'ip'});
+  se(INIT_AUKUS,UK,'initiative');
+  se(INIT_AUKUS,US,'initiative');
+  se(INIT_AUKUS,APAC,'initiative');
+
+  // ── SAMPLE ACTIONS ──
+  const act1=mkAction({parentId:LR,title:'Schedule AiP scoping meeting with LR London',
+    desc:'Initial meeting to scope Approval in Principle process for Saronic USV class',
+    owner:'Regulatory Team',due:'2025-03-31',status:'ip',priority:'h',initiative:'UK Classification Pathway'});
+  ACTIONS[act1.id]=act1;
+  const act2=mkAction({parentId:USCG,title:'Map USCG MASS policy letter requirements',
+    desc:'Review NVIC 01-16 and subsequent MASS guidance; identify gaps for Saronic operations',
+    owner:'Regulatory Team',due:'2025-04-30',status:'ns',priority:'h',initiative:'US Regulatory Entry'});
+  ACTIONS[act2.id]=act2;
+  const act3=mkAction({parentId:AUSN,title:'Brief RAN on AUKUS autonomous maritime alignment',
+    desc:'Schedule initial engagement with RAN AUKUS Pillar II programme office',
+    owner:'BD Team',due:'2025-05-15',status:'ns',priority:'m',initiative:'AUKUS Autonomous Maritime'});
+  ACTIONS[act3.id]=act3;
+}
+
+// ─── BOOT ───
+function boot(){
+  const saved=localStorage.getItem('saronic-map-v3');
+  if(saved){
+    try{
+      const data=JSON.parse(saved);
+      NODES=data.NODES||{};EDGES=data.EDGES||[];
+      ACTIONS=data.ACTIONS||{};INITIATIVES=data.INITIATIVES||{};
+      Object.values(NODES).forEach(n=>renderNode(n));
+      // Re-render edges after all nodes exist and have dimensions
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{
+          EDGES.forEach(e=>renderEdge(e.id));
+          updateSB();updateMM();
+        });
+      });
+      toast('Map loaded from saved state');
+    }catch(err){
+      runFreshLoad();
+    }
+  } else {
+    runFreshLoad();
+  }
+  resetView();
+  window.addEventListener('beforeunload',saveLS);
+}
+
+function runFreshLoad(){
+  loadInitialData();
+  // Render nodes first
+  Object.values(NODES).forEach(n=>renderNode(n));
+  // Then edges in next frame so nodes have real offsetWidth/Height
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      EDGES.forEach(e=>renderEdge(e.id));
+      updateSB();updateMM();
+      saveLS();
+    });
+  });
+}
+
+boot();
+</script>
+</body>
+</html>
